@@ -1,0 +1,39 @@
+{
+  "uuid": "c56f217d-a9f8-4cfd-a617-f8870560f2b1",
+  "shortName": "NMEAremote_pebble",
+  "longName": "NMEAremote_pebble",
+  "companyName": "MakeAwesomeHappen",
+  "versionCode": 1,
+  "versionLabel": "1.0.0",
+  "watchapp": {
+    "watchface": false
+  },
+  "appKeys": {
+    "SPEED": 0,
+	"HDG": 1,
+	"AWA": 2
+  },
+  "resources": {
+    "media": [
+      {
+        "type": "png",
+        "name": "IMAGE_SUN",
+        "file": "img/sun.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_RAIN",
+        "file": "img/rain.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_CLOUD",
+        "file": "img/cloud.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_SNOW",
+        "file": "img/snow.png"
+      }
+  ]}
+}
