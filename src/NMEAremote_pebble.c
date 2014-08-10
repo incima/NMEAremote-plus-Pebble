@@ -11,6 +11,8 @@ static char hdg[16];
 static TextLayer *awa_layer;
 static char awa[16];
 
+static Layer *circle_layer;
+
 static AppSync sync;
 static uint8_t sync_buffer[48];
 
@@ -24,7 +26,7 @@ static void sync_error_callback(DictionaryResult dict_error, AppMessageResult ap
   APP_LOG(APP_LOG_LEVEL_DEBUG, "App Message Sync Error: %d", app_message_error);
 }
 
-static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tuple, const Tuple* old_tuple, void* context) {
+static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tuple, const Tuple* old_tuple, void* context) {	
   switch (key) {
     case SPEED_KEY:
       text_layer_set_text(speed_layer, new_tuple->value->cstring);
@@ -36,6 +38,16 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
       text_layer_set_text(awa_layer, new_tuple->value->cstring);
       break;			
   }
+	layer_mark_dirty(circle_layer);
+}
+
+static void circle_layer_update_proc(Layer *layer, GContext *context)
+{
+	static GColor color = GColorWhite;
+	GRect layer_frame = layer_get_bounds(layer);		
+	graphics_context_set_fill_color(context, color);			
+	graphics_fill_circle(context, (GPoint){layer_frame.size.w/2, layer_frame.size.h/2}, layer_frame.size.w/2);			
+	color = (color == GColorWhite ? GColorBlack : GColorWhite);
 }
 
 static void window_load(Window *window) {
@@ -45,21 +57,21 @@ static void window_load(Window *window) {
   speed_layer = text_layer_create(GRect(0, y, 144, 40));
   text_layer_set_text_color(speed_layer, GColorWhite);
   text_layer_set_background_color(speed_layer, GColorClear);
-  text_layer_set_font(speed_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
+  text_layer_set_font(speed_layer, fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK));
   text_layer_set_text_alignment(speed_layer, GTextAlignmentCenter);
 
 	y += 40+10;
   hdg_layer = text_layer_create(GRect(0, y, 144, 40));
   text_layer_set_text_color(hdg_layer, GColorWhite);
   text_layer_set_background_color(hdg_layer, GColorClear);
-  text_layer_set_font(hdg_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
+  text_layer_set_font(hdg_layer, fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK));
   text_layer_set_text_alignment(hdg_layer, GTextAlignmentCenter);
 
 	y += 40+10;
   awa_layer = text_layer_create(GRect(0, y, 144, 40));
   text_layer_set_text_color(awa_layer, GColorWhite);
-  text_layer_set_background_color(awa_layer, GColorWhite);
-  text_layer_set_font(awa_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
+  text_layer_set_background_color(awa_layer, GColorBlack);
+  text_layer_set_font(awa_layer, fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK));
   text_layer_set_text_alignment(awa_layer, GTextAlignmentCenter);
 
   Tuplet initial_values[] = {
@@ -72,7 +84,14 @@ static void window_load(Window *window) {
 
   layer_add_child(window_layer, text_layer_get_layer(speed_layer));
   layer_add_child(window_layer, text_layer_get_layer(hdg_layer));
-	layer_add_child(window_layer, text_layer_get_layer(awa_layer));	
+	layer_add_child(window_layer, text_layer_get_layer(awa_layer));
+	
+	GRect window_layer_frame = layer_get_frame(window_layer);			
+	circle_layer = layer_create(GRect(window_layer_frame.origin.x + window_layer_frame.size.w - 4, 
+																		window_layer_frame.origin.y + window_layer_frame.size.h - 4, 
+																		4, 4));																		
+	layer_set_update_proc(circle_layer, circle_layer_update_proc);	
+  layer_add_child(window_layer, circle_layer);	
 }
 
 static void window_unload(Window *window) {
