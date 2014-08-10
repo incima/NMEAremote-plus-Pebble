@@ -58,7 +58,7 @@ static void window_load(Window *window) {
 	y += 40+10;
   awa_layer = text_layer_create(GRect(0, y, 144, 40));
   text_layer_set_text_color(awa_layer, GColorWhite);
-  text_layer_set_background_color(awa_layer, GColorClear);
+  text_layer_set_background_color(awa_layer, GColorWhite);
   text_layer_set_font(awa_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
   text_layer_set_text_alignment(awa_layer, GTextAlignmentCenter);
 
