@@ -22,13 +22,19 @@
 		    "file": "fonts/OpenSans-ExtraBold.ttf"
 			},
 		  {
+				"characterRegex": "[A-Za-z]",
+		    "type": "font",
+		    "name": "FONT_OPENSANS_LIGHT_24_TEXT",
+		    "file": "fonts/OpenSans-Light.ttf"
+			},			
+		  {
 		    "type": "font",
 				"characterRegex": "[0-9\\.°]",				
 		    "name": "FONT_OPENSANS_BOLD_24_NUMBERS",
 		    "file": "fonts/OpenSans-Bold.ttf"
 		  },
 		  {
-				"characterRegex": "[A-Z]",
+				"characterRegex": "[A-Za-z]",
 		    "type": "font",
 		    "name": "FONT_OPENSANS_EXTRA_24_TEXT",
 		    "file": "fonts/OpenSans-ExtraBold.ttf"
