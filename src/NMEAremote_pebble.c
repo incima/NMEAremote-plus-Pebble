@@ -38,7 +38,6 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
       text_layer_set_text(awa_layer, new_tuple->value->cstring);
       break;			
   }
-	layer_mark_dirty(circle_layer);
 }
 
 static void circle_layer_update_proc(Layer *layer, GContext *context)
@@ -48,6 +47,11 @@ static void circle_layer_update_proc(Layer *layer, GContext *context)
 	graphics_context_set_fill_color(context, color);			
 	graphics_fill_circle(context, (GPoint){layer_frame.size.w/2, layer_frame.size.h/2}, layer_frame.size.w/2);			
 	color = (color == GColorWhite ? GColorBlack : GColorWhite);
+}
+
+static void app_timer_callback(void *data) 
+{
+		layer_mark_dirty(circle_layer);
 }
 
 static void window_load(Window *window) {
@@ -117,6 +121,8 @@ static void init() {
 
   const bool animated = true;
   window_stack_push(window, animated);
+	
+	app_timer_register(500, app_timer_callback, NULL);
 }
 
 static void deinit() {
