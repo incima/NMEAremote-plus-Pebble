@@ -15,25 +15,24 @@
   },
   "resources": {
     "media": [
-      {
-        "type": "png",
-        "name": "IMAGE_SUN",
-        "file": "img/sun.png"
-      },
-      {
-        "type": "png",
-        "name": "IMAGE_RAIN",
-        "file": "img/rain.png"
-      },
-      {
-        "type": "png",
-        "name": "IMAGE_CLOUD",
-        "file": "img/cloud.png"
-      },
-      {
-        "type": "png",
-        "name": "IMAGE_SNOW",
-        "file": "img/snow.png"
-      }
-  ]}
+		  {
+				"characterRegex": "[0-9\\.°]",
+		    "type": "font",
+		    "name": "FONT_OPENSANS_EXTRA_52_NUMBERS",
+		    "file": "fonts/OpenSans-ExtraBold.ttf"
+			},
+		  {
+		    "type": "font",
+				"characterRegex": "[0-9\\.°]",				
+		    "name": "FONT_OPENSANS_BOLD_24_NUMBERS",
+		    "file": "fonts/OpenSans-Bold.ttf"
+		  },
+		  {
+				"characterRegex": "[A-Z]",
+		    "type": "font",
+		    "name": "FONT_OPENSANS_EXTRA_24_TEXT",
+		    "file": "fonts/OpenSans-ExtraBold.ttf"
+			}			
+		]
+	}
 }
