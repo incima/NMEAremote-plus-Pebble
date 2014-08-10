@@ -47,7 +47,6 @@ static void window_load(Window *window) {
   text_layer_set_background_color(speed_layer, GColorClear);
   text_layer_set_font(speed_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
   text_layer_set_text_alignment(speed_layer, GTextAlignmentCenter);
-  text_layer_set_text(speed_layer, speed);
 
 	y += 40+10;
   hdg_layer = text_layer_create(GRect(0, y, 144, 40));
@@ -55,7 +54,6 @@ static void window_load(Window *window) {
   text_layer_set_background_color(hdg_layer, GColorClear);
   text_layer_set_font(hdg_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
   text_layer_set_text_alignment(hdg_layer, GTextAlignmentCenter);
-  text_layer_set_text(hdg_layer, hdg);
 
 	y += 40+10;
   awa_layer = text_layer_create(GRect(0, y, 144, 40));
@@ -63,12 +61,11 @@ static void window_load(Window *window) {
   text_layer_set_background_color(awa_layer, GColorClear);
   text_layer_set_font(awa_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
   text_layer_set_text_alignment(awa_layer, GTextAlignmentCenter);
-  text_layer_set_text(awa_layer, awa);
 
   Tuplet initial_values[] = {
-    TupletCString(SPEED_KEY, "SOG: --"),
-    TupletCString(HDG_KEY, "HDG: --"),
-    TupletCString(AWA_KEY, "AWA: --")				
+    TupletCString(SPEED_KEY, "--.-"),
+    TupletCString(HDG_KEY, "---°"),
+    TupletCString(AWA_KEY, "---°")				
   };
   app_sync_init(&sync, sync_buffer, sizeof(sync_buffer), initial_values, ARRAY_LENGTH(initial_values),
       sync_tuple_changed_callback, sync_error_callback, NULL);
