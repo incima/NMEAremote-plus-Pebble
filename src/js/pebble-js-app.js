@@ -29,13 +29,7 @@ Pebble.addEventListener("ready",
 						 												"HDG":hdg, 
 																		"AWA":awa 
 																	});		   
-			     } else { 
-						 console.log("Error"); 
-			       Pebble.sendAppMessage({ "Speed":"--", 
-						 												 "HDG":"--", 
-																		 "AWA":"--" 
-																	 });		   						 
-				 	 }
+			     } 
 			   }
 			 }
 			 req.send(null);

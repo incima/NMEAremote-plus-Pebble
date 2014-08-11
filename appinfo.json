@@ -16,25 +16,25 @@
   "resources": {
     "media": [
 		  {
-				"characterRegex": "[0-9\\.°]",
+				"characterRegex": "[0-9\\.°-]",
 		    "type": "font",
 		    "name": "FONT_OPENSANS_EXTRA_52_NUMBERS",
 		    "file": "fonts/OpenSans-ExtraBold.ttf"
 			},
 		  {
-				"characterRegex": "[A-Za-z]",
+				"characterRegex": "[A-Z]",
 		    "type": "font",
 		    "name": "FONT_OPENSANS_LIGHT_24_TEXT",
 		    "file": "fonts/OpenSans-Light.ttf"
 			},			
 		  {
 		    "type": "font",
-				"characterRegex": "[0-9\\.°]",				
+				"characterRegex": "[0-9\\.°-]",				
 		    "name": "FONT_OPENSANS_BOLD_24_NUMBERS",
 		    "file": "fonts/OpenSans-Bold.ttf"
 		  },
 		  {
-				"characterRegex": "[A-Za-z]",
+				"characterRegex": "[A-Z]",
 		    "type": "font",
 		    "name": "FONT_OPENSANS_EXTRA_24_TEXT",
 		    "file": "fonts/OpenSans-ExtraBold.ttf"

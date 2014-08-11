@@ -24,10 +24,14 @@ static TextLayer *left_title_layer;
 
 static Layer *circle_layer;
 
+#define SYNC_UPDATE_TIMEOUT 10
 static AppSync sync;
 static uint8_t sync_buffer[48];
+static GColor sync_update_color = GColorWhite;
+static int sync_update_count = 0;
 
 #define APP_TIMER_TIMEOUT 1000
+
 
 enum NMEAkey {
 	SPEED_KEY = 0,  
@@ -35,17 +39,22 @@ enum NMEAkey {
 	AWA_KEY = 2,	  	
 };
 
+
 static void sync_error_callback(DictionaryResult dict_error, AppMessageResult app_message_error, void *context) {
   APP_LOG(APP_LOG_LEVEL_DEBUG, "left_value_layer Message Sync Error: %d", app_message_error);
 }
 
-static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tuple, const Tuple* old_tuple, void* context) {	
+static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tuple, const Tuple* old_tuple, void* context) {		
+	if (sync_update_count < 0)
+		sync_update_count = 1;
+	else 
+		++sync_update_count;
   switch (key) {
     case SPEED_KEY:
-			memcpy(speed, new_tuple->value->cstring, new_tuple->length);
+			memcpy(speed, new_tuple->value->cstring, new_tuple->length);					
       break;
     case HDG_KEY:
-			memcpy(hdg, new_tuple->value->cstring, new_tuple->length);		
+			memcpy(hdg, new_tuple->value->cstring, new_tuple->length);	
       break;
     case AWA_KEY:
 			memcpy(awa, new_tuple->value->cstring, new_tuple->length);		
@@ -55,12 +64,9 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
 
 static void circle_layer_update_proc(Layer *layer, GContext *context)
 {
-  static GColor color = GColorWhite;
-		
 	GRect layer_frame = layer_get_bounds(layer);		
-	graphics_context_set_fill_color(context, color);			
-	graphics_fill_circle(context, (GPoint){layer_frame.size.w/2, layer_frame.size.h/2}, 2);			
-	color = (color == GColorWhite ? GColorBlack : GColorWhite);
+	graphics_context_set_fill_color(context, sync_update_color);			
+	graphics_fill_circle(context, (GPoint){layer_frame.size.w/2, layer_frame.size.h/2}, 2);				
 }
 
 static void rounded_layer_update_proc(Layer* layer, GContext *context) 
@@ -71,12 +77,22 @@ static void rounded_layer_update_proc(Layer* layer, GContext *context)
 }
 
 static void app_timer_callback(void *data) 
-{	
-	text_layer_set_text(top_value_layer, speed);		
-  text_layer_set_text(left_value_layer, hdg);		
- 	text_layer_set_text(right_value_layer, awa);
-	
-	layer_mark_dirty(circle_layer);
+{  
+	if (sync_update_count > 0) {
+		text_layer_set_text(top_value_layer, speed);				
+	  text_layer_set_text(left_value_layer, hdg);		
+	 	text_layer_set_text(right_value_layer, awa);								
+		sync_update_color = (sync_update_color == GColorBlack ? GColorWhite : GColorBlack);
+		sync_update_count = 0;
+	} else {
+		if (--sync_update_count < -SYNC_UPDATE_TIMEOUT) {
+			text_layer_set_text(top_value_layer, "-.--");				
+		  text_layer_set_text(left_value_layer, "---°");		
+		 	text_layer_set_text(right_value_layer, "---°");								
+		}
+		sync_update_color = GColorBlack;				
+	}			
+	layer_mark_dirty(circle_layer);			
 	
 	app_timer_register(APP_TIMER_TIMEOUT, app_timer_callback, NULL);
 }
