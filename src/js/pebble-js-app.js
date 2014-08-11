@@ -1,13 +1,15 @@
 function formatSMile(v) {
-	if(!v) return "-.--";
+	if(!v) return "--.-";
 	return v.toFixed(1);
 }
 
 function formatAngle(v) {
 	if(!v) return "---°";
 	var x = v.toFixed(0);
-	if (x < 100) 
-		return '0'+ x +"°";
+	if (x < 10) 
+		return '00'+ x +"°";
+	else if (x < 100) 
+		return '0'+ x +"°";		
 	else
 		return x + '°';
 }

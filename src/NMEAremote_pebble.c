@@ -5,6 +5,9 @@
 #define FONT_OPENSANS_BOLD_24_NUMBERS RESOURCE_ID_FONT_OPENSANS_BOLD_24_NUMBERS
 #define FONT_OPENSANS_EXTRA_24_TEXT RESOURCE_ID_FONT_OPENSANS_EXTRA_24_TEXT
 
+#define SMILE_DEFAULT_VALUE "--.-"
+#define ANGLE_DEFAULT_VALUE "---°"
+
 static Window *window;
 
 static char speed[16];
@@ -31,7 +34,6 @@ static GColor sync_update_color = GColorWhite;
 static int sync_update_count = 0;
 
 #define APP_TIMER_TIMEOUT 1000
-
 
 enum NMEAkey {
 	SPEED_KEY = 0,  
@@ -86,9 +88,9 @@ static void app_timer_callback(void *data)
 		sync_update_count = 0;
 	} else {
 		if (--sync_update_count < -SYNC_UPDATE_TIMEOUT) {
-			text_layer_set_text(top_value_layer, "-.--");				
-		  text_layer_set_text(left_value_layer, "---°");		
-		 	text_layer_set_text(right_value_layer, "---°");								
+			text_layer_set_text(top_value_layer, SMILE_DEFAULT_VALUE);				
+		  text_layer_set_text(left_value_layer, ANGLE_DEFAULT_VALUE);		
+		 	text_layer_set_text(right_value_layer, ANGLE_DEFAULT_VALUE);								
 		}
 		sync_update_color = GColorBlack;				
 	}			
@@ -196,9 +198,9 @@ static void init() {
   window_stack_push(window, animated);
 	
   Tuplet initial_values[] = {
-    TupletCString(SPEED_KEY, "--.-"),
-    TupletCString(HDG_KEY, "---°"),
-    TupletCString(AWA_KEY, "---°")				
+    TupletCString(SPEED_KEY, SMILE_DEFAULT_VALUE),
+    TupletCString(HDG_KEY, ANGLE_DEFAULT_VALUE),
+    TupletCString(AWA_KEY, ANGLE_DEFAULT_VALUE)				
   };
   app_sync_init(&sync, sync_buffer, sizeof(sync_buffer), initial_values, ARRAY_LENGTH(initial_values),
       sync_tuple_changed_callback, sync_error_callback, NULL);
