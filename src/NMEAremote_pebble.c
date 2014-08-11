@@ -85,17 +85,20 @@ static void app_timer_callback(void *data)
 	  text_layer_set_text(left_value_layer, hdg);		
 	 	text_layer_set_text(right_value_layer, awa);								
 		sync_update_color = (sync_update_color == GColorBlack ? GColorWhite : GColorBlack);
+		layer_mark_dirty(circle_layer);							
 		sync_update_count = 0;
 	} else {
-		if (--sync_update_count < -SYNC_UPDATE_TIMEOUT) {
+		//only set once to prevent updates
+		if (--sync_update_count == -SYNC_UPDATE_TIMEOUT) {
 			text_layer_set_text(top_value_layer, SMILE_DEFAULT_VALUE);				
 		  text_layer_set_text(left_value_layer, ANGLE_DEFAULT_VALUE);		
 		 	text_layer_set_text(right_value_layer, ANGLE_DEFAULT_VALUE);								
 		}
-		sync_update_color = GColorBlack;				
-	}			
-	layer_mark_dirty(circle_layer);			
-	
+		if (sync_update_color != GColorBlack) {
+			sync_update_color = GColorBlack;		
+			layer_mark_dirty(circle_layer);										
+		}		
+	}				
 	app_timer_register(APP_TIMER_TIMEOUT, app_timer_callback, NULL);
 }
 
