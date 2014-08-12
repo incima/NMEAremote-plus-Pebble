@@ -1,8 +1,10 @@
 #include <pebble.h>
-#include "controller.h"
 #include "common.h"
+#include "controllers/trl_controller.h"
+#include "controllers/splash_controller.h"
 
-static Window *window;
+static Window *trl_window;
+static Window *splash_window;
 static Layer *circle_layer;
 
 #define SYNC_UPDATE_TIMEOUT 10
@@ -11,12 +13,12 @@ static uint8_t sync_buffer[48];
 static GColor sync_update_color = GColorWhite;
 static int sync_update_count = 0;
 static TRLController *trl_controller;
+static SplashController *splash_controller;
 static struct {
 	char speed[8];
 	char hdg[8];	
 	char awa[8];	
 } values;
-
 
 static void sync_error_callback(DictionaryResult dict_error, AppMessageResult app_message_error, void *context) 
 {
@@ -52,21 +54,30 @@ static void circle_layer_update_proc(Layer *layer, GContext *context)
 static void app_timer_callback(void *data) 
 {  
 	if (sync_update_count > 0) {
-		trl_controller->top_value = values.speed;
-		trl_controller->left_value = values.hdg;
-		trl_controller->right_value = values.awa;				
-		controller_redraw_if_needed(trl_controller_get_controller(trl_controller));
+		if (splash_controller)
+			controller_redraw_if_needed(splash_controller_get_controller(splash_controller));									
+		if (trl_controller)	{
+			trl_controller->top_value = values.speed;
+			trl_controller->left_value = values.hdg;
+			trl_controller->right_value = values.awa;							
+			controller_redraw_if_needed(trl_controller_get_controller(trl_controller));
+		}
 		sync_update_color = (sync_update_color == GColorBlack ? GColorWhite : GColorBlack);
-		layer_mark_dirty(circle_layer);							
+		if(circle_layer)
+			layer_mark_dirty(circle_layer);							
 		sync_update_count = 0;
 	} else {
 		//only set once to prevent updates
 		if (--sync_update_count == -SYNC_UPDATE_TIMEOUT) {
-			controller_cancel_redraw(trl_controller_get_controller(trl_controller));			
+			if (splash_controller)
+				controller_cancel_redraw(splash_controller_get_controller(splash_controller));							
+			if (trl_controller)				
+				controller_cancel_redraw(trl_controller_get_controller(trl_controller));			
 		}
 		if (sync_update_color != GColorBlack) {
 			sync_update_color = GColorBlack;		
-			layer_mark_dirty(circle_layer);										
+			if(circle_layer)			
+				layer_mark_dirty(circle_layer);										
 		}		
 	}				
 	app_timer_register(APP_TIMER_TIMEOUT, app_timer_callback, NULL);
@@ -82,11 +93,15 @@ static void controller_did_unload(Controller* controller)
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "Controller did unload");
 }
 
-static void window_load(Window* window) 
+/**
+	TRL Window
+ */
+
+static void trl_window_load(Window* window) 
 {
 	Layer *window_layer = window_get_root_layer(window);	
 	 
-	trl_controller = trl_controller_create(window, (ControllerHandlers) {
+	trl_controller = trl_controller_create(trl_window, (ControllerHandlers) {
 		.on_did_load = controller_did_load,
 		.on_did_unload = controller_did_unload
 	});	
@@ -106,29 +121,62 @@ static void window_load(Window* window)
   layer_add_child(window_layer, circle_layer);		
 }
 
-static void window_unload(Window* window) 
+static void trl_window_unload(Window* window) 
 {
-	controller_unload(trl_controller_get_controller(trl_controller));	
-	
 	layer_destroy(circle_layer);	
+	controller_unload(trl_controller_get_controller(trl_controller));		
+}
+
+static void load_trl_window()
+{
+  trl_window = window_create();
+  window_set_background_color(trl_window, GColorBlack);	
+  window_set_fullscreen(trl_window, true);
+  window_set_window_handlers(trl_window, (WindowHandlers) {
+    .load = trl_window_load,
+    .unload = trl_window_unload
+  });			
+}
+
+/**
+	Splash Window
+*/
+
+static void splash_window_load(Window *window)
+{
+	splash_controller = splash_controller_create(window, (ControllerHandlers) {
+		.on_did_load = controller_did_load,
+		.on_did_unload = controller_did_unload
+	});
+	//splash_controller-> ;
+	controller_load(splash_controller_get_controller(splash_controller));		
+}
+
+static void splash_window_unload(Window *window)
+{
+	controller_unload(splash_controller_get_controller(splash_controller));
+}
+
+static void load_splash_window()
+{
+  splash_window = window_create();
+  window_set_background_color(splash_window, GColorBlack);	
+  window_set_fullscreen(splash_window, true);
+  window_set_window_handlers(splash_window, (WindowHandlers) {
+    .load = splash_window_load,
+    .unload = splash_window_unload
+  });			
 }
 
 static void init() 
 {
-  window = window_create();
-  window_set_background_color(window, GColorBlack);	
-  window_set_fullscreen(window, true);
-  window_set_window_handlers(window, (WindowHandlers) {
-    .load = window_load,
-    .unload = window_unload
-  });	
-		
+	load_splash_window();	
+  const bool animated = true;	
+	window_stack_push(splash_window, animated);
+			
   const int inbound_size = 64;
   const int outbound_size = 16;
   app_message_open(inbound_size, outbound_size);
-
-  const bool animated = true;
-	window_stack_push(window, animated);
 		
   Tuplet initial_values[] = {
     TupletCString(SPEED_KEY, SMILE_DEFAULT_VALUE),
@@ -144,7 +192,10 @@ static void init()
 static void deinit() 
 {
   app_sync_deinit(&sync);				
-  window_destroy(window);
+	if (trl_window)
+		window_destroy(trl_window);
+	if (splash_window)
+		window_destroy(splash_window);
 }
 
 int main(void) 

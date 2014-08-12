@@ -1,22 +1,7 @@
-#ifndef CONTROLLER_H_
-#define CONTROLLER_H_
+#ifndef TRL_CONTROLLER_H_
+#define TRL_CONTROLLER_H_
 
-#include <pebble.h>
-
-struct Controller;
-
-typedef struct 
-{
-	void (*on_did_load)(struct Controller*);
-	void (*on_did_unload)(struct Controller*);	
-} ControllerHandlers;
-
-typedef struct Controller 
-{
-	void* vtable;
-	ControllerHandlers handlers;	
-	Window* window;
-} Controller;
+#include <controllers/controller.h>
 
 typedef struct {
 	Controller controller;
@@ -44,13 +29,7 @@ typedef struct {
 	char *right_title;
 } TRLController;
 
-
 TRLController* trl_controller_create(Window* window, ControllerHandlers handlers);
 Controller* trl_controller_get_controller(TRLController*);
 
-void controller_load(Controller*);
-void controller_unload(Controller*);
-void controller_redraw_if_needed(Controller*);
-void controller_cancel_redraw(Controller*);
-
-#endif /* CONTROLLER_H_ */
+#endif /* TRL_CONTROLLER_H_ */

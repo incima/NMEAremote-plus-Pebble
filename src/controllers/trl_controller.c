@@ -1,62 +1,7 @@
 #include "common.h"
-#include "controller.h"
+#include "trl_controller.h"
 
-typedef struct {
-	void (*load)(Controller*);
-	void (*unload)(Controller*);	
-	void (*redraw)(Controller*);
-	void (*cancel_redraw)(Controller*);		
-} ControllerVTable;
-
-void controller_init(Controller* controller, Window* window, ControllerHandlers handlers, ControllerVTable vtable) 
-{
-	memset(controller, 0, sizeof(Controller));
-	ControllerVTable *vtable_ptr = malloc(sizeof(ControllerVTable));
-	memset(vtable_ptr, 0, sizeof(ControllerVTable));
-	memcpy(vtable_ptr, &vtable, sizeof(ControllerVTable));
-	controller->vtable = vtable_ptr;
-	controller->handlers = handlers;
-	controller->window = window;
-}
-
-ControllerVTable* controller_get_vtable(Controller *controller) {
-	return (ControllerVTable*)controller->vtable;
-}
-
-void controller_load(Controller* controller) 
-{
-	ControllerVTable *vtable = controller_get_vtable(controller);
-	if (vtable->load)
-		vtable->load(controller);	
-	if (controller->handlers.on_did_load)
-		controller->handlers.on_did_load(controller);
-}
-
-void controller_unload(Controller* controller) 
-{
-	ControllerVTable *vtable = controller_get_vtable(controller);	
-	if (vtable->unload)
-		vtable->unload(controller);
-	if (controller->handlers.on_did_unload)
-		controller->handlers.on_did_unload(controller);	
-}
-
-void controller_redraw_if_needed(Controller* controller) 
-{
-	ControllerVTable *vtable = controller_get_vtable(controller);	
-	if (vtable->redraw)
-		vtable->redraw(controller);			
-}
-
-void controller_cancel_redraw(Controller* controller) 
-{
-	ControllerVTable *vtable = controller_get_vtable(controller);	
-	if (vtable->cancel_redraw)
-		vtable->cancel_redraw(controller);				
-}
-
-
-TRLController* trl_controller_get_trl_controller(Controller *controller) {
+TRLController* controller_get_trl_controller(Controller *controller) {
 	void *controller_pptr = (void*)(controller);		
 	return (TRLController*)controller_pptr;
 }
@@ -71,7 +16,7 @@ static void rounded_layer_update_proc(Layer* layer, GContext *context)
 void trl_controller_load(Controller* controller)
 {
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLController trl_controller_load");
-	TRLController *trl_controller = trl_controller_get_trl_controller(controller);
+	TRLController *trl_controller = controller_get_trl_controller(controller);
 
   Layer *window_layer = window_get_root_layer(trl_controller->controller.window);
 
@@ -140,7 +85,7 @@ void trl_controller_load(Controller* controller)
 void trl_controller_unload(Controller* controller)
 {
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLController trl_controller_unload");
-	TRLController *trl_controller = trl_controller_get_trl_controller(controller);	
+	TRLController *trl_controller = controller_get_trl_controller(controller);	
   text_layer_destroy(trl_controller->top_value_layer);
   text_layer_destroy(trl_controller->top_title_layer);	
   text_layer_destroy(trl_controller->left_value_layer);
@@ -154,7 +99,7 @@ void trl_controller_unload(Controller* controller)
 void trl_controller_redaw(Controller* controller)
 {
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLController trl_controller_redraw");		
-	TRLController *trl_controller = trl_controller_get_trl_controller(controller);		
+	TRLController *trl_controller = controller_get_trl_controller(controller);		
 	text_layer_set_text(trl_controller->top_title_layer, trl_controller->top_title);	
 	text_layer_set_text(trl_controller->top_value_layer, trl_controller->top_value);
 	text_layer_set_text(trl_controller->left_title_layer, trl_controller->left_title);	
@@ -166,7 +111,7 @@ void trl_controller_redaw(Controller* controller)
 void trl_controller_cancel_redaw(Controller* controller)
 {
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLController trl_controller_cancel_redraw");	
-	TRLController *trl_controller = trl_controller_get_trl_controller(controller);	
+	TRLController *trl_controller = controller_get_trl_controller(controller);	
 	text_layer_set_text(trl_controller->top_title_layer, trl_controller->top_title);
 	text_layer_set_text(trl_controller->top_value_layer, trl_controller->top_default_value);	
 	text_layer_set_text(trl_controller->left_title_layer, trl_controller->left_title);	
@@ -179,7 +124,7 @@ TRLController* trl_controller_create(Window* window, ControllerHandlers handlers
 {
 	TRLController* trl_controller = malloc(sizeof(TRLController));
 	memset(trl_controller, 0, sizeof(TRLController));
-	controller_init(&trl_controller->controller, window, handlers, (ControllerVTable) {
+	__controller_init(&trl_controller->controller, window, handlers, (ControllerVTable) {
 		.load = trl_controller_load,
 		.unload = trl_controller_unload,
 		.redraw = trl_controller_redaw,
@@ -192,4 +137,3 @@ TRLController* trl_controller_create(Window* window, ControllerHandlers handlers
 Controller* trl_controller_get_controller(TRLController* trl_controller) {
 	return &trl_controller->controller;
 }
-
