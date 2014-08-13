@@ -7,8 +7,9 @@ struct Controller;
 
 typedef struct 
 {
-	void (*on_did_load)(struct Controller*);
-	void (*on_did_unload)(struct Controller*);	
+	void (*did_load)(struct Controller*);
+	void (*did_unload)(struct Controller*);	
+	void (*did_finish)(struct Controller*);		
 } ControllerHandlers;
 
 typedef struct Controller 

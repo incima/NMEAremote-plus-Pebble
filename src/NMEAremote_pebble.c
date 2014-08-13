@@ -102,8 +102,8 @@ static void trl_window_load(Window* window)
 	Layer *window_layer = window_get_root_layer(window);	
 	 
 	trl_controller = trl_controller_create(trl_window, (ControllerHandlers) {
-		.on_did_load = controller_did_load,
-		.on_did_unload = controller_did_unload
+		.did_load = controller_did_load,
+		.did_unload = controller_did_unload
 	});	
 	trl_controller->top_title = "SPEED";
 	trl_controller->left_title = "HDG";
@@ -138,23 +138,39 @@ static void load_trl_window()
   });			
 }
 
+static void push_trl_window()
+{
+	load_trl_window();
+  const bool animated = true;	
+	window_stack_push(trl_window, animated);	
+}
+
 /**
 	Splash Window
 */
 
+void splash_controller_did_finish(Controller *controller)
+{
+	push_trl_window();
+	window_stack_remove(splash_window, false);
+}
+
 static void splash_window_load(Window *window)
 {
 	splash_controller = splash_controller_create(window, (ControllerHandlers) {
-		.on_did_load = controller_did_load,
-		.on_did_unload = controller_did_unload
+		.did_load = controller_did_load,
+		.did_unload = controller_did_unload,
+		.did_finish = splash_controller_did_finish
 	});
-	//splash_controller-> ;
+	splash_controller_set_bitmap_from_resource(splash_controller, NMEA_REMOTE_SPLASH);
 	controller_load(splash_controller_get_controller(splash_controller));		
 }
 
 static void splash_window_unload(Window *window)
 {
 	controller_unload(splash_controller_get_controller(splash_controller));
+	//controller_destory(splash_controller_get_controller(splash_controller)), splash_controller = NULL;
+	window_destroy(splash_window), splash_window = NULL;			
 }
 
 static void load_splash_window()

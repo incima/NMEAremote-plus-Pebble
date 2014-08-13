@@ -1,7 +1,7 @@
 {
   "uuid": "c56f217d-a9f8-4cfd-a617-f8870560f2b1",
-  "shortName": "NMEAremote_pebble",
-  "longName": "NMEAremote_pebble",
+  "shortName": "NMEAremote+",
+  "longName": "NMEAremote+pebble",
   "companyName": "MakeAwesomeHappen",
   "versionCode": 1,
   "versionLabel": "1.0.0",
@@ -38,7 +38,18 @@
 		    "type": "font",
 		    "name": "FONT_OPENSANS_EXTRA_24_TEXT",
 		    "file": "fonts/OpenSans-ExtraBold.ttf"
-			}			
+			},
+      {
+        "type": "png",
+        "name": "NMEA_REMOTE_SPLASH",
+        "file": "img/NMEAsplash.png"
+      },		
+      {
+        "type": "png",
+        "name": "NMEA_REMOTE_MENU_ICON",
+        "file": "img/NMEAmenuIcon.png",
+				"menuIcon": "yes"
+      }								
 		]
 	}
 }

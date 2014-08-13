@@ -21,8 +21,8 @@ void controller_load(Controller* controller)
 	ControllerVTable *vtable = controller_get_vtable(controller);
 	if (vtable->load)
 		vtable->load(controller);	
-	if (controller->handlers.on_did_load)
-		controller->handlers.on_did_load(controller);
+	if (controller->handlers.did_load)
+		controller->handlers.did_load(controller);
 }
 
 void controller_unload(Controller* controller) 
@@ -30,8 +30,8 @@ void controller_unload(Controller* controller)
 	ControllerVTable *vtable = controller_get_vtable(controller);	
 	if (vtable->unload)
 		vtable->unload(controller);
-	if (controller->handlers.on_did_unload)
-		controller->handlers.on_did_unload(controller);	
+	if (controller->handlers.did_unload)
+		controller->handlers.did_unload(controller);	
 }
 
 void controller_redraw_if_needed(Controller* controller) 
