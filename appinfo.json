@@ -12,8 +12,9 @@
     "Speed": 0,
 		"HDG": 1,
 		"AWA": 2,
-		"DTW": 3,
-		"TTG": 4
+		"BTW": 3,
+		"DTW": 4,
+		"TTG": 5
   },
   "resources": {
     "media": [

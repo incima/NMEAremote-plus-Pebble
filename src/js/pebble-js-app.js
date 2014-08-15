@@ -1,10 +1,10 @@
 function formatSMile(v) {
-	if(!v) return "--.-";
+	if(!v || v == "") return "--.-";
 	return v.toFixed(1);
 }
 
 function formatAngle(v) {
-	if(!v) return "---°";
+	if(!v || v == "") return "---°";
 	var x = v.toFixed(0);
 	if (x < 10) 
 		return '00'+ x +"°";
@@ -27,9 +27,15 @@ Pebble.addEventListener("ready",
 			       var speed = formatSMile(response.Speed);
 			       var hdg = formatAngle(response.HDG);		   
 			       var awa = formatAngle(response.AWA);
+			       var btw = formatAngle(response.BTW);
+			       var dtw = formatAngle(response.DTW);		   
+			       var ttg = formatSMile(response.TTG);						 
 			       Pebble.sendAppMessage({"Speed":speed, 
 						 												"HDG":hdg, 
-																		"AWA":awa 
+																		"AWA":awa,
+																		"BTW":btw,
+																		"DTW":dtw,
+																		"TTG":ttg
 																	});		   
 			     } 
 			   }

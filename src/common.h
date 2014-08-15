@@ -20,6 +20,9 @@ enum NMEAkey {
 	SPEED_KEY = 0,  
 	HDG_KEY = 1,
 	AWA_KEY = 2,	  	
+	BTW_KEY = 3,	  	
+	DTW_KEY = 4,	  	
+	TTG_KEY = 5
 };
 
 #endif /* COMMON_H_ */
