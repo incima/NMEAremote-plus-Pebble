@@ -87,9 +87,7 @@ static void controller_did_unload(Controller* controller)
  */
 
 static void trl_window_load(Window* window) 
-{
-	Layer *window_layer = window_get_root_layer(window);	
-	 
+{	 
 	trl_controller = trl_controller_create(trl_window, (ControllerHandlers) {
 		.did_load = controller_did_load,
 		.did_unload = controller_did_unload
@@ -108,6 +106,7 @@ static void trl_window_unload(Window* window)
 {
 	layer_destroy(circle_layer);	
 	controller_unload(trl_controller_get_controller(trl_controller));		
+	controller_destroy(trl_controller_get_controller(trl_controller)), trl_controller = NULL;	
 }
 
 static void load_trl_window()
@@ -152,7 +151,7 @@ static void splash_window_load(Window *window)
 static void splash_window_unload(Window *window)
 {
 	controller_unload(splash_controller_get_controller(splash_controller));
-	//controller_destory(splash_controller_get_controller(splash_controller)), splash_controller = NULL;
+	controller_destroy(splash_controller_get_controller(splash_controller)), splash_controller = NULL;
 	window_destroy(splash_window), splash_window = NULL;			
 }
 

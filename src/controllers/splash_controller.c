@@ -83,6 +83,13 @@ void splash_controller_cancel_redraw(Controller* controller)
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "SplashController splash_controller_cancel_redraw");			
 }
 
+void splash_controller_destroy(Controller* controller)
+{
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "SplashController splash_controller_destroy");			
+	SplashController* splash_controller = controller_get_splash_controller(controller);
+	free(splash_controller);
+}
+
 SplashController* splash_controller_create(Window* window, ControllerHandlers handlers)
 {
 	SplashController* splash_controller = malloc(sizeof(SplashController));
@@ -91,7 +98,8 @@ SplashController* splash_controller_create(Window* window, ControllerHandlers ha
 		.load = splash_controller_load,
 		.unload = splash_controller_unload,
 		.redraw = splash_controller_redraw,
-		.cancel_redraw = splash_controller_cancel_redraw
+		.cancel_redraw = splash_controller_cancel_redraw,
+		.destroy = splash_controller_destroy
 	});
 	return splash_controller;
 }
