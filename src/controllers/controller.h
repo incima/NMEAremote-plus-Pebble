@@ -17,6 +17,8 @@ typedef struct Controller
 	void* vtable;
 	ControllerHandlers handlers;	
 	Window* window;
+	Layer* update_layer;
+	GColor* update_color;
 } Controller;
 
 typedef struct {
@@ -24,6 +26,7 @@ typedef struct {
 	void (*unload)(Controller*);	
 	void (*redraw)(Controller*);
 	void (*cancel_redraw)(Controller*);		
+	void (*destroy)(Controller*);			
 } ControllerVTable;
 
 void __controller_init(Controller* controller, Window* window, ControllerHandlers handlers, ControllerVTable vtable);
@@ -31,5 +34,8 @@ void controller_load(Controller*);
 void controller_unload(Controller*);
 void controller_redraw_if_needed(Controller*);
 void controller_cancel_redraw(Controller*);
+void controller_load_update_layer(Controller* controller);
+void controller_redraw_update_layer(Controller* controller, GColor color);
+void controller_destroy(Controller *);
 
 #endif /* CONTROLLER_H_ */

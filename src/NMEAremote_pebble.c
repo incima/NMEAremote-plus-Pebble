@@ -44,16 +44,10 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
   }	
 }
 
-static void circle_layer_update_proc(Layer *layer, GContext *context)
-{
-	GRect layer_frame = layer_get_bounds(layer);		
-	graphics_context_set_fill_color(context, sync_update_color);			
-	graphics_fill_circle(context, (GPoint){layer_frame.size.w/2, layer_frame.size.h/2}, 2);				
-}
-
 static void app_timer_callback(void *data) 
 {  
 	if (sync_update_count > 0) {
+		sync_update_color = (sync_update_color == GColorBlack ? GColorWhite : GColorBlack);				
 		if (splash_controller)
 			controller_redraw_if_needed(splash_controller_get_controller(splash_controller));									
 		if (trl_controller)	{
@@ -61,24 +55,19 @@ static void app_timer_callback(void *data)
 			trl_controller->left_value = values.hdg;
 			trl_controller->right_value = values.awa;							
 			controller_redraw_if_needed(trl_controller_get_controller(trl_controller));
+			controller_redraw_update_layer(trl_controller_get_controller(trl_controller), sync_update_color);			
 		}
-		sync_update_color = (sync_update_color == GColorBlack ? GColorWhite : GColorBlack);
-		if(circle_layer)
-			layer_mark_dirty(circle_layer);							
 		sync_update_count = 0;
 	} else {
 		//only set once to prevent updates
 		if (--sync_update_count == -SYNC_UPDATE_TIMEOUT) {
 			if (splash_controller)
 				controller_cancel_redraw(splash_controller_get_controller(splash_controller));							
-			if (trl_controller)				
+			if (trl_controller) {
 				controller_cancel_redraw(trl_controller_get_controller(trl_controller));			
+				controller_redraw_update_layer(trl_controller_get_controller(trl_controller), GColorBlack);			
+			}
 		}
-		if (sync_update_color != GColorBlack) {
-			sync_update_color = GColorBlack;		
-			if(circle_layer)			
-				layer_mark_dirty(circle_layer);										
-		}		
 	}				
 	app_timer_register(APP_TIMER_TIMEOUT, app_timer_callback, NULL);
 }
@@ -112,13 +101,7 @@ static void trl_window_load(Window* window)
 	trl_controller->left_default_value = ANGLE_DEFAULT_VALUE;
 	trl_controller->right_default_value = ANGLE_DEFAULT_VALUE;				
 	controller_load(trl_controller_get_controller(trl_controller));
-	
-	GRect window_layer_frame = layer_get_frame(window_layer);			
-	circle_layer = layer_create(GRect(window_layer_frame.origin.x + window_layer_frame.size.w - 7, 
-																		window_layer_frame.origin.y + 1, 
-																		5, 5));																		
-	layer_set_update_proc(circle_layer, circle_layer_update_proc);	
-  layer_add_child(window_layer, circle_layer);		
+	controller_load_update_layer(trl_controller_get_controller(trl_controller));
 }
 
 static void trl_window_unload(Window* window) 

@@ -11,7 +11,9 @@
   "appKeys": {
     "Speed": 0,
 		"HDG": 1,
-		"AWA": 2
+		"AWA": 2,
+		"DTW": 3,
+		"TTG": 4
   },
   "resources": {
     "media": [
