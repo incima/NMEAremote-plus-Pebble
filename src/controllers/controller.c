@@ -43,18 +43,11 @@ void controller_destroy(Controller* controller)
 		vtable->destroy(controller);
 }
 
-void controller_redraw_if_needed(Controller* controller) 
+void controller_redraw(Controller* controller) 
 {
 	ControllerVTable *vtable = controller_get_vtable(controller);	
 	if (vtable->redraw)
 		vtable->redraw(controller);			
-}
-
-void controller_cancel_redraw(Controller* controller) 
-{
-	ControllerVTable *vtable = controller_get_vtable(controller);	
-	if (vtable->cancel_redraw)
-		vtable->cancel_redraw(controller);				
 }
 
 static GColor controller_update_color;

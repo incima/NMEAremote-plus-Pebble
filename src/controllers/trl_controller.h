@@ -18,9 +18,6 @@ typedef struct {
 
 	Layer *circle_layer;
 
-	char *top_default_value;
-	char *left_default_value;
-	char *right_default_value;
 	char *top_value;
 	char *left_value;
 	char *right_value;	

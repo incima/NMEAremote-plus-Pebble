@@ -62,41 +62,30 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
 
 static void app_timer_callback(void *data) 
 {  
-	Window* top_window = window_stack_get_top_window();
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "app_timer_callback: %d", sync_update_count);	
 	if (sync_update_count > 0) {
-		sync_update_color = (sync_update_color == GColorBlack ? GColorWhite : GColorBlack);				
-		if (top_window == splash_window)
-			controller_redraw_if_needed(splash_controller_get_controller(splash_controller));									
-		else if (top_window == speed_window)	{
-			speed_controller->top_value = values.speed;
-			speed_controller->left_value = values.hdg;
-			speed_controller->right_value = values.awa;							
-			controller_redraw_if_needed(trl_controller_get_controller(speed_controller));
-			controller_redraw_update_layer(trl_controller_get_controller(speed_controller), sync_update_color);			
-		}
-		else if (top_window == btw_window){
-			btw_controller->top_value = values.btw;
-			btw_controller->left_value = values.dtw;
-			btw_controller->right_value = values.ttg;							
-			controller_redraw_if_needed(trl_controller_get_controller(btw_controller));
-			controller_redraw_update_layer(trl_controller_get_controller(btw_controller), sync_update_color);			
-		}		
-		sync_update_count = 0;
+		sync_update_color = (sync_update_color == GColorBlack ? GColorWhite : GColorBlack);					
 	} else {
-		//only set once to prevent updates
-		if (--sync_update_count == -SYNC_UPDATE_TIMEOUT) {
-			if (top_window == splash_window)
-				controller_redraw_if_needed(splash_controller_get_controller(splash_controller));							
-			else if (top_window == speed_window) {
-				controller_cancel_redraw(trl_controller_get_controller(speed_controller));			
-				controller_redraw_update_layer(trl_controller_get_controller(speed_controller), GColorBlack);						
-			}
-			else if (top_window == btw_window) {
-				controller_cancel_redraw(trl_controller_get_controller(btw_controller));			
-				controller_redraw_update_layer(trl_controller_get_controller(btw_controller), GColorBlack);			
-			}			
-		}
-	}				
+		sync_update_color = GColorBlack;
+	}
+	Window* top_window = window_stack_get_top_window();	
+	if (top_window == splash_window)
+		controller_redraw(splash_controller_get_controller(splash_controller));									
+	else if (top_window == speed_window)	{
+		speed_controller->top_value = values.speed;
+		speed_controller->left_value = values.hdg;
+		speed_controller->right_value = values.awa;							
+		controller_redraw(trl_controller_get_controller(speed_controller));
+		controller_redraw_update_layer(trl_controller_get_controller(speed_controller), sync_update_color);			
+	}
+	else if (top_window == btw_window){
+		btw_controller->top_value = values.btw;
+		btw_controller->left_value = values.dtw;
+		btw_controller->right_value = values.ttg;							
+		controller_redraw(trl_controller_get_controller(btw_controller));
+		controller_redraw_update_layer(trl_controller_get_controller(btw_controller), sync_update_color);			
+	}		
+	sync_update_count = 0;
 	app_timer_register(APP_TIMER_TIMEOUT, app_timer_callback, NULL);
 }
 
@@ -115,21 +104,30 @@ static void controller_did_unload(Controller* controller)
  */
 
 static void window_up_click_handler(ClickRecognizerRef recognizer, void *context) {
-		Window *window = (Window *)context;
-		if (window == btw_window) {
-			window_stack_pop(btw_window);
-		}
+	if(splash_window)
+		return;
+	
+	Window *window = (Window *)context;
+	if (window == btw_window) {
+		window_stack_pop(btw_window);
+	}
 }
 
 static void window_down_click_handler(ClickRecognizerRef recognizer, void *context) {
-		Window *window = (Window *)context;
-		if (window == speed_window) {			
-			window_stack_push(btw_window, true);
-		}
+	if(splash_window)
+		return;
+
+	Window *window = (Window *)context;
+	if (window == speed_window) {			
+		window_stack_push(btw_window, true);
+	}
 }
 
 static void window_select_click_handler(ClickRecognizerRef recognizer, void *context) {
-		Window *window = (Window *)context;
+	if(splash_window)
+		return;
+
+	Window *window = (Window *)context;
 }
 
 /**
@@ -147,9 +145,9 @@ static void speed_window_load(Window* window)
 	speed_controller->top_title = "SPEED";
 	speed_controller->left_title = "HDG";
 	speed_controller->right_title = "AWA";
-	speed_controller->top_default_value = SMILE_DEFAULT_VALUE;
-	speed_controller->left_default_value = ANGLE_DEFAULT_VALUE;
-	speed_controller->right_default_value = ANGLE_DEFAULT_VALUE;				
+	memcpy(values.speed, SMILE_DEFAULT_VALUE, MIN(strlen(SMILE_DEFAULT_VALUE), sizeof(values.speed)));	
+	memcpy(values.hdg, ANGLE_DEFAULT_VALUE, MIN(strlen(ANGLE_DEFAULT_VALUE), sizeof(values.hdg)));		
+	memcpy(values.awa, ANGLE_DEFAULT_VALUE, MIN(strlen(ANGLE_DEFAULT_VALUE), sizeof(values.awa)));			
 	controller_load(trl_controller_get_controller(speed_controller));
 	controller_load_update_layer(trl_controller_get_controller(speed_controller));
 }
@@ -192,9 +190,9 @@ static void btw_window_load(Window* window)
 	btw_controller->top_title = "BTW";
 	btw_controller->left_title = "DTW";
 	btw_controller->right_title = "TTG";
-	btw_controller->top_default_value = ANGLE_DEFAULT_VALUE;
-	btw_controller->left_default_value = ANGLE_DEFAULT_VALUE;
-	btw_controller->right_default_value = SMILE_DEFAULT_VALUE;				
+	memcpy(values.btw, ANGLE_DEFAULT_VALUE, MIN(strlen(ANGLE_DEFAULT_VALUE), sizeof(values.btw)));	
+	memcpy(values.dtw, ANGLE_DEFAULT_VALUE, MIN(strlen(ANGLE_DEFAULT_VALUE), sizeof(values.dtw)));		
+	memcpy(values.ttg, SMILE_DEFAULT_VALUE, MIN(strlen(SMILE_DEFAULT_VALUE), sizeof(values.ttg)));		
 	controller_load(trl_controller_get_controller(btw_controller));
 	controller_load_update_layer(trl_controller_get_controller(btw_controller));
 }
@@ -230,6 +228,7 @@ void splash_controller_did_finish(Controller *controller)
 {
 	window_stack_push(speed_window, true);			
 	window_stack_remove(splash_window, false);	
+	window_destroy(splash_window), splash_window = NULL;
 }
 
 static void splash_window_load(Window *window)

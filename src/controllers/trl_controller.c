@@ -108,18 +108,6 @@ void trl_controller_redaw(Controller* controller)
 	text_layer_set_text(trl_controller->right_value_layer, trl_controller->right_value);			
 }
 
-void trl_controller_cancel_redaw(Controller* controller)
-{
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLController trl_controller_cancel_redraw");	
-	TRLController *trl_controller = controller_get_trl_controller(controller);	
-	text_layer_set_text(trl_controller->top_title_layer, trl_controller->top_title);
-	text_layer_set_text(trl_controller->top_value_layer, trl_controller->top_default_value);	
-	text_layer_set_text(trl_controller->left_title_layer, trl_controller->left_title);	
-	text_layer_set_text(trl_controller->left_value_layer, trl_controller->left_default_value);	
-	text_layer_set_text(trl_controller->right_title_layer, trl_controller->right_title);			
-	text_layer_set_text(trl_controller->right_value_layer, trl_controller->right_default_value);			
-}
-
 void trl_controller_destroy(Controller* controller) 
 {
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLController trl_controller_destroy");	
@@ -135,7 +123,6 @@ TRLController* trl_controller_create(Window* window, ControllerHandlers handlers
 		.load = trl_controller_load,
 		.unload = trl_controller_unload,
 		.redraw = trl_controller_redaw,
-		.cancel_redraw = trl_controller_cancel_redaw,
 		.destroy = trl_controller_destroy
 	});	
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLController %p", trl_controller);		
