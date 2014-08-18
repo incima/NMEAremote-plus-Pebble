@@ -26,7 +26,9 @@ typedef struct {
 	char *right_title;
 } TRLController;
 
+
 TRLController* trl_controller_create(Window* window, ControllerHandlers handlers);
 Controller* trl_controller_get_controller(TRLController*);
+TRLController* controller_get_trl_controller(Controller *);
 
 #endif /* TRL_CONTROLLER_H_ */

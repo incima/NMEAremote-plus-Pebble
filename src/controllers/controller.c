@@ -75,3 +75,8 @@ void controller_redraw_update_layer(Controller* controller, GColor color)
 	if(controller->update_layer)
 		layer_mark_dirty(controller->update_layer);			
 }
+
+Window* controller_get_window(Controller *controller) 
+{
+	return controller->window;
+}

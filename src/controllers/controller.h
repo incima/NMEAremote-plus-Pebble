@@ -35,5 +35,6 @@ void controller_redraw(Controller*);
 void controller_load_update_layer(Controller* controller);
 void controller_redraw_update_layer(Controller* controller, GColor color);
 void controller_destroy(Controller *);
+Window* controller_get_window(Controller *);
 
 #endif /* CONTROLLER_H_ */
