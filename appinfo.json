@@ -10,16 +10,21 @@
   },
   "appKeys": {
     "Speed": 0,
-		"HDG": 1,
-		"AWA": 2,
-		"BTW": 3,
-		"DTW": 4,
-		"TTG": 5
-  },
+		"Depth": 1,
+		"HDG": 2,
+		"AWA": 3,
+		"BTW": 4,
+		"DTW": 5,
+		"TTG": 6,
+		"COG": 7,		
+		"XTE": 8,
+		"SOG": 9,
+		"URL": 255  
+	},
   "resources": {
     "media": [
 		  {
-				"characterRegex": "[0-9\\.°-]",
+				"characterRegex": "[0-9\\.\\:°-]",
 		    "type": "font",
 		    "name": "FONT_OPENSANS_EXTRA_52_NUMBERS",
 		    "file": "fonts/OpenSans-ExtraBold.ttf"
@@ -32,7 +37,7 @@
 			},			
 		  {
 		    "type": "font",
-				"characterRegex": "[0-9\\.°-]",				
+				"characterRegex": "[0-9\\.\\:°-]",				
 		    "name": "FONT_OPENSANS_BOLD_24_NUMBERS",
 		    "file": "fonts/OpenSans-Bold.ttf"
 		  },

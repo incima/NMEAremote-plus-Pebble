@@ -9,7 +9,10 @@
 #define NMEA_REMOTE_SPLASH RESOURCE_ID_NMEA_REMOTE_SPLASH
 
 #define SMILE_DEFAULT_VALUE "--.-"
+#define KNOTS_DEFAULT_VALUE "--.-"
 #define ANGLE_DEFAULT_VALUE "---°"
+#define TIME_DEFAULT_VALUE "--:--"
+#define METER_DEFAULT_VALUE "--.-"
 
 #define APP_TIMER_TIMEOUT 1000
 
@@ -18,11 +21,17 @@
 
 enum NMEAkey {
 	SPEED_KEY = 0,  
-	HDG_KEY = 1,
-	AWA_KEY = 2,	  	
-	BTW_KEY = 3,	  	
-	DTW_KEY = 4,	  	
-	TTG_KEY = 5
+	DEPTH_KEY = 1,	
+	HDG_KEY = 2,
+	AWA_KEY = 3,	  	
+	BTW_KEY = 4,	  	
+	DTW_KEY = 5,	  	
+	TTG_KEY = 6,
+	COG_KEY = 7,
+	XTE_KEY = 8,
+	SOG_KEY = 9,
+	/*Config*/
+	URL_KEY = 0xFF
 };
 
 #endif /* COMMON_H_ */

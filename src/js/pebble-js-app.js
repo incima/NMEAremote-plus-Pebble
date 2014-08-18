@@ -1,5 +1,10 @@
 function formatSMile(v) {
 	if(!v || v == "") return "--.-";
+	return v.toFixed(2);
+}
+
+function formatKnots(v) {
+	if(!v || v == "") return "--.-";
 	return v.toFixed(1);
 }
 
@@ -14,33 +19,54 @@ function formatAngle(v) {
 		return x + '°';
 }
 
-Pebble.addEventListener("ready",
-  function(e) {
+function formatTime(v) {
+	if(!v || v == "") return "--:--";
+	return v.toFixed(1);
+}
+
+function formatMeter(v) {
+	if(!v || v == "") return "--.-";
+	return v.toFixed(1);
+}
+
+Pebble.addEventListener("appmessage",
+function(e) {		
+  console.log("Received message: " + JSON.stringify(e.payload));
+	if (e.payload.URL) {
+		console.log("URL: " + e.payload.URL);
 		var timerID = setInterval(reload,1000);		
 		function reload() {
 			var req = new XMLHttpRequest();
-			req.open('GET', 'http://192.168.1.15:8080/json', true);
+			req.open('GET', e.payload.URL, true);
 			req.onload = function(e) {
 				if (req.readyState == 4) {
 			  	if(req.status == 200) {
 			       var response = JSON.parse(req.responseText);
-			       var speed = formatSMile(response.Speed);
+			       var speed = formatKnots(response.Speed);
+			       var depth = formatMeter(response.Depth);							 
 			       var hdg = formatAngle(response.HDG);		   
 			       var awa = formatAngle(response.AWA);
 			       var btw = formatAngle(response.BTW);
-			       var dtw = formatAngle(response.DTW);		   
-			       var ttg = formatSMile(response.TTG);						 
+			       var dtw = formatSMile(response.DTW);		   
+			       var ttg = formatTime(response.TTG);		
+						 var cog = formatAngle(response.COG);
+						 var xte = formatKnots(response.XTE);
+						 var sog = formatKnots(response.SOG);
 			       Pebble.sendAppMessage({"Speed":speed, 
+						 											 	"Depth":depth,
 						 												"HDG":hdg, 
 																		"AWA":awa,
 																		"BTW":btw,
 																		"DTW":dtw,
-																		"TTG":ttg
+																		"TTG":ttg,
+																		"COG":cog,
+																		"XTE":xte,
+																		"SOG":sog
 																	});		   
 			     } 
 			   }
 			 }
 			 req.send(null);
-	 	}
-  }
-);
+	 	}			
+	}
+});
