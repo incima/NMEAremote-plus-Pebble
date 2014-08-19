@@ -8,7 +8,8 @@
 static AppSync sync;
 static uint8_t sync_buffer[128];
 static GColor sync_update_color = GColorWhite;
-static int sync_update_count = 0;
+static unsigned long last_sync_update_count = 0;
+static unsigned long sync_update_count = 0;
 static Window *splash_window;
 static SplashController *splash_controller;
 typedef enum {
@@ -35,9 +36,17 @@ static struct {
 	char ttg[8];	
 	char cog[8];	
 	char xte[8];	
-	char sog[8];				
+	char sog[8];			
+	char target_speed[8];
+	char target_speed_percent[8];		
 	char url[124];
 } values;
+
+static void connect_timer_callback(void *data) 
+{
+	if (splash_controller)
+		splash_controller_set_updating(splash_controller, false);	
+}
 
 static void sync_error_callback(DictionaryResult dict_error, AppMessageResult app_message_error, void *context) 
 {
@@ -47,11 +56,26 @@ static void sync_error_callback(DictionaryResult dict_error, AppMessageResult ap
 static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tuple, const Tuple* old_tuple, void* context) 
 {		
   APP_LOG(APP_LOG_LEVEL_DEBUG, "sync_tuple_changed_callback: %u", (unsigned int)key);		
-	if (sync_update_count < 0)
-		sync_update_count = 1;
-	else 
-		++sync_update_count;	
   switch (key) {
+		case URL_KEY:	{
+			if (old_tuple == NULL || 0 != strcmp(old_tuple->value->cstring, new_tuple->value->cstring)) {
+				memcpy(values.url, new_tuple->value->cstring, MIN(new_tuple->length, sizeof(values.url)));	
+				APP_LOG(APP_LOG_LEVEL_DEBUG, "URL: %s", values.url);						
+				if (splash_controller) {
+					splash_controller_set_updating(splash_controller, true);
+					app_timer_register(15000, connect_timer_callback, NULL);
+				}
+				DictionaryIterator *iter;
+				app_message_outbox_begin(&iter);
+				Tuplet cfg_val = TupletCString(URL_KEY, values.url);
+				dict_write_tuplet(iter, &cfg_val);
+				app_message_outbox_send();
+			}			
+		} return;	// BAIL			
+		
+		/**
+			VALUES
+			*/
     case SPEED_KEY:
 			memcpy(values.speed, new_tuple->value->cstring, MIN(new_tuple->length, sizeof(values.speed)));					
 			break;
@@ -82,24 +106,31 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
 		case SOG_KEY:
 			memcpy(values.sog, new_tuple->value->cstring, MIN(new_tuple->length, sizeof(values.sog)));	
 			break;				
-		case URL_KEY:	{
-			if (old_tuple == NULL || 0 != strcmp(old_tuple->value->cstring, new_tuple->value->cstring)) {
-				memcpy(values.url, new_tuple->value->cstring, MIN(new_tuple->length, sizeof(values.url)));	
-				APP_LOG(APP_LOG_LEVEL_DEBUG, "URL: %s", values.url);						
-				DictionaryIterator *iter;
-				app_message_outbox_begin(&iter);
-				Tuplet cfg_val = TupletCString(URL_KEY, values.url);
-				dict_write_tuplet(iter, &cfg_val);
-				app_message_outbox_send();
-			}			
-		} break;				
+		case KEY_TARGET_SPEED:
+			memcpy(values.target_speed, new_tuple->value->cstring, MIN(new_tuple->length, sizeof(values.target_speed)));	
+			break;				
+		case KEY_TARGET_SPEED_PERCENT:
+			memcpy(values.target_speed_percent, new_tuple->value->cstring, MIN(new_tuple->length, sizeof(values.target_speed_percent)));	
+			break;				
   }	
+	
+	++sync_update_count;		
+
+	if (splash_controller) {
+		if (!list_empty(&controller_list)) {
+			struct list_head *ptr = controller_list.next;	
+			struct ControllerEntry *entry = list_entry(ptr, struct ControllerEntry, list);	
+			window_stack_push(entry->window, true);			
+		}
+		window_stack_remove(splash_window, false);	
+		window_destroy(splash_window), splash_window = NULL;			
+	}	
 }
 
 static void app_timer_callback(void *data) 
 {  
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "app_timer_callback: %d", sync_update_count);			
-	if (sync_update_count > 0) {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "app_timer_callback: %lu", sync_update_count);			
+	if (sync_update_count > last_sync_update_count) {
 		sync_update_color = (sync_update_color == GColorBlack ? GColorWhite : GColorBlack);							
 	} else {
 		sync_update_color = GColorBlack;
@@ -113,6 +144,8 @@ static void app_timer_callback(void *data)
 		memcpy(values.cog, ANGLE_DEFAULT_VALUE, MIN(strlen(ANGLE_DEFAULT_VALUE), sizeof(values.cog)));			
 		memcpy(values.xte, SMILE_DEFAULT_VALUE, MIN(strlen(SMILE_DEFAULT_VALUE), sizeof(values.xte)));			
 		memcpy(values.sog, KNOTS_DEFAULT_VALUE, MIN(strlen(KNOTS_DEFAULT_VALUE), sizeof(values.sog)));									
+		memcpy(values.target_speed, SMILE_DEFAULT_VALUE, MIN(strlen(SMILE_DEFAULT_VALUE), sizeof(values.target_speed_percent)));			
+		memcpy(values.target_speed_percent, KNOTS_DEFAULT_VALUE, MIN(strlen(KNOTS_DEFAULT_VALUE), sizeof(values.target_speed_percent)));									
 	}
 	Window* top_window = window_stack_get_top_window();	
 	if (top_window == splash_window)
@@ -169,7 +202,7 @@ static void app_timer_callback(void *data)
 	     }			 
 	  }						
 	}
-	sync_update_count = 0;
+	last_sync_update_count = sync_update_count;
 	app_timer_register(APP_TIMER_TIMEOUT, app_timer_callback, NULL);
 }
 
@@ -295,23 +328,11 @@ static void load_trl_window_for_controller_id(ControllerID controllerID)
 	Splash Window
 */
 
-void splash_controller_did_finish(Controller *controller)
-{
-	if (!list_empty(&controller_list)) {
-		struct list_head *ptr = controller_list.next;	
-		struct ControllerEntry *entry = list_entry(ptr, struct ControllerEntry, list);	
-		window_stack_push(entry->window, true);			
-	}
-	window_stack_remove(splash_window, false);	
-	window_destroy(splash_window), splash_window = NULL;
-}
-
 static void splash_window_load(Window *window)
 {
 	splash_controller = splash_controller_create(window, (ControllerHandlers) {
 		.did_load = controller_did_load,
-		.did_unload = controller_did_unload,
-		.did_finish = splash_controller_did_finish
+		.did_unload = controller_did_unload
 	});
 	splash_controller_set_bitmap_from_resource(splash_controller, NMEA_REMOTE_SPLASH);
 	controller_load(splash_controller_get_controller(splash_controller));		

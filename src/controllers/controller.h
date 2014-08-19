@@ -9,7 +9,6 @@ typedef struct
 {
 	void (*did_load)(struct Controller*);
 	void (*did_unload)(struct Controller*);	
-	void (*did_finish)(struct Controller*);		
 } ControllerHandlers;
 
 typedef struct Controller 

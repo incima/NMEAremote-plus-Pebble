@@ -29,6 +29,11 @@ function formatMeter(v) {
 	return v.toFixed(1);
 }
 
+function formatPercent(v) {
+	if(!v || v == "") return "---%";
+	return v.toFixed(1);	
+}
+
 Pebble.addEventListener("appmessage",
 function(e) {		
   console.log("Received message: " + JSON.stringify(e.payload));
@@ -52,6 +57,8 @@ function(e) {
 						 var cog = formatAngle(response.COG);
 						 var xte = formatKnots(response.XTE);
 						 var sog = formatKnots(response.SOG);
+						 var target_speed = formatKnots(response.TARGET_SPEED);
+						 var target_speed_percent = formatPercent(response.TARGET_SPEED_PERCENT);						 						 
 			       Pebble.sendAppMessage({"Speed":speed, 
 						 											 	"Depth":depth,
 						 												"HDG":hdg, 
@@ -61,6 +68,8 @@ function(e) {
 																		"TTG":ttg,
 																		"COG":cog,
 																		"XTE":xte,
+																		"TARGET_SPEED":target_speed,
+																		"TARGET_SPEED_PERCENT":target_speed_percent,
 																		"SOG":sog
 																	});		   
 			     } 

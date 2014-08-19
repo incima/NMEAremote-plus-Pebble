@@ -19,6 +19,8 @@
 		"COG": 7,		
 		"XTE": 8,
 		"SOG": 9,
+		"TARGET_SPEED": 10,
+		"TARGET_SPEED_PERCENT": 11,
 		"URL": 255  
 	},
   "resources": {
@@ -30,7 +32,7 @@
 		    "file": "fonts/OpenSans-ExtraBold.ttf"
 			},
 		  {
-				"characterRegex": "[A-Z]",
+				"characterRegex": "[A-Z\\s]",
 		    "type": "font",
 		    "name": "FONT_OPENSANS_LIGHT_24_TEXT",
 		    "file": "fonts/OpenSans-Light.ttf"
@@ -42,11 +44,17 @@
 		    "file": "fonts/OpenSans-Bold.ttf"
 		  },
 		  {
-				"characterRegex": "[A-Z]",
+				"characterRegex": "[A-Z\\s]",
 		    "type": "font",
 		    "name": "FONT_OPENSANS_EXTRA_24_TEXT",
 		    "file": "fonts/OpenSans-ExtraBold.ttf"
 			},
+		  {
+				"characterRegex": "[A-Z\\s]",
+		    "type": "font",
+		    "name": "FONT_OPENSANS_12_TEXT",
+		    "file": "fonts/OpenSans-Regular.ttf"
+			},			
       {
         "type": "png",
         "name": "NMEA_REMOTE_SPLASH",
