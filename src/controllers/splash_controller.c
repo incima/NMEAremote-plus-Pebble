@@ -24,7 +24,7 @@ void splash_controller_load(Controller* controller)
   splash_controller->splash_layer = bitmap_layer_create(window_bounds);
   layer_add_child(window_layer, bitmap_layer_get_layer(splash_controller->splash_layer));
 	
-	uint32_t ypos = window_frame.origin.y + window_frame.size.h - 20;
+	uint32_t ypos = window_frame.origin.y + window_frame.size.h - 28;
 	splash_controller->circle_layer1 = layer_create(GRect(window_frame.origin.x + window_frame.size.w/2 - 12, 
 																		ypos, 5, 5));																		
 	layer_set_update_proc(splash_controller->circle_layer1, splash_circle_layer_update_proc);	
@@ -37,12 +37,14 @@ void splash_controller_load(Controller* controller)
 																			ypos, 5, 5));
 	layer_set_update_proc(splash_controller->circle_layer3, splash_circle_layer_update_proc);			
 	
-  splash_controller->info_layer = text_layer_create(GRect(0, ypos - 6, 144, 18));
+	ypos += 12;
+  splash_controller->info_layer = text_layer_create(GRect(0, ypos, 144, 12));
   text_layer_set_text_color(splash_controller->info_layer, GColorWhite);
   text_layer_set_background_color(splash_controller->info_layer, GColorClear);
   text_layer_set_font(splash_controller->info_layer, fonts_load_custom_font(resource_get_handle(FONT_OPENSANS_12_TEXT)));
   text_layer_set_text_alignment(splash_controller->info_layer, GTextAlignmentCenter);
-	text_layer_set_text(splash_controller->info_layer, "NO SERVER");	
+	text_layer_set_text(splash_controller->info_layer, "");	
+	layer_add_child(window_layer, text_layer_get_layer(splash_controller->info_layer));			
 }
 
 void splash_controller_unload(Controller* controller) 
@@ -64,7 +66,6 @@ void splash_controller_redraw(Controller* controller)
 	
 	Layer *window_layer = window_get_root_layer(splash_controller->controller.window);
 	if (splash_controller->updating) {
-		layer_remove_from_parent( text_layer_get_layer(splash_controller->info_layer));
 		if (splash_controller->circle_counter == 1) {
 		  layer_add_child(window_layer, splash_controller->circle_layer1);		
 			layer_mark_dirty(splash_controller->circle_layer1);
@@ -88,7 +89,6 @@ void splash_controller_redraw(Controller* controller)
 		layer_remove_from_parent(splash_controller->circle_layer1);
 		layer_remove_from_parent(splash_controller->circle_layer2);			
 		layer_remove_from_parent(splash_controller->circle_layer3);			
-		layer_add_child(window_layer, text_layer_get_layer(splash_controller->info_layer));				
 		splash_controller->circle_counter = 0;					
 	}
 }
@@ -125,7 +125,14 @@ void splash_controller_set_bitmap_from_resource(SplashController* splash_control
   splash_controller->splash_bitmap = gbitmap_create_with_resource(resource_id);
 }
 
+void splash_controller_set_info_text(SplashController* splash_controller, char *info_text)
+{
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "SplashController splash_controller_set_info_text");				
+	splash_controller->info_text = info_text;
+	text_layer_set_text(splash_controller->info_layer, splash_controller->info_text);
+}
+
 void splash_controller_set_updating(SplashController* splash_controller, bool updating) {
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "SplashController splash_controller_destroy");			
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "SplashController splash_controller_set_updating");			
 	splash_controller->updating = updating;
 }

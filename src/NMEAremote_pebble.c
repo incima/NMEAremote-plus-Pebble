@@ -6,7 +6,7 @@
 
 #define SYNC_UPDATE_TIMEOUT 10
 static AppSync sync;
-static uint8_t sync_buffer[128];
+static uint8_t sync_buffer[512];
 static GColor sync_update_color = GColorWhite;
 static unsigned long last_sync_update_count = 0;
 static unsigned long sync_update_count = 0;
@@ -42,10 +42,27 @@ static struct {
 	char url[124];
 } values;
 
-static void connect_timer_callback(void *data) 
+static void load_splash_window();
+
+static void connect_failed_timer_callback(void *data) 
 {
-	if (splash_controller)
+	if (splash_controller) {
+		splash_controller_set_info_text(splash_controller, "CONNECT FAILED");			
 		splash_controller_set_updating(splash_controller, false);	
+	}
+}
+
+static void connect_success_timer_callback(void *data)
+{
+	if (splash_controller) {
+		if (!list_empty(&controller_list)) {
+			struct list_head *ptr = controller_list.next;	
+			struct ControllerEntry *entry = list_entry(ptr, struct ControllerEntry, list);	
+			window_stack_push(entry->window, true);			
+		}
+		window_stack_remove(splash_window, false);	
+		window_destroy(splash_window), splash_window = NULL;				
+	}
 }
 
 static void sync_error_callback(DictionaryResult dict_error, AppMessageResult app_message_error, void *context) 
@@ -61,9 +78,14 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
 			if (old_tuple == NULL || 0 != strcmp(old_tuple->value->cstring, new_tuple->value->cstring)) {
 				memcpy(values.url, new_tuple->value->cstring, MIN(new_tuple->length, sizeof(values.url)));	
 				APP_LOG(APP_LOG_LEVEL_DEBUG, "URL: %s", values.url);						
+				if (!splash_window) {
+					load_splash_window();	
+					window_stack_pop_all(false);
+					window_stack_push(splash_window, true);	
+				}
 				if (splash_controller) {
 					splash_controller_set_updating(splash_controller, true);
-					app_timer_register(15000, connect_timer_callback, NULL);
+					app_timer_register(15000, connect_failed_timer_callback, NULL);
 				}
 				DictionaryIterator *iter;
 				app_message_outbox_begin(&iter);
@@ -106,24 +128,19 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
 		case SOG_KEY:
 			memcpy(values.sog, new_tuple->value->cstring, MIN(new_tuple->length, sizeof(values.sog)));	
 			break;				
-		case KEY_TARGET_SPEED:
+		case TARGET_SPEED_KEY:
 			memcpy(values.target_speed, new_tuple->value->cstring, MIN(new_tuple->length, sizeof(values.target_speed)));	
 			break;				
-		case KEY_TARGET_SPEED_PERCENT:
+		case TARGET_SPEED_PERCENT_KEY:
 			memcpy(values.target_speed_percent, new_tuple->value->cstring, MIN(new_tuple->length, sizeof(values.target_speed_percent)));	
 			break;				
   }	
 	
 	++sync_update_count;		
 
-	if (splash_controller) {
-		if (!list_empty(&controller_list)) {
-			struct list_head *ptr = controller_list.next;	
-			struct ControllerEntry *entry = list_entry(ptr, struct ControllerEntry, list);	
-			window_stack_push(entry->window, true);			
-		}
-		window_stack_remove(splash_window, false);	
-		window_destroy(splash_window), splash_window = NULL;			
+	if (splash_controller && splash_controller->updating) {
+		splash_controller_set_info_text(splash_controller, "CONNECTING");			
+		app_timer_register(3000, connect_success_timer_callback, NULL);
 	}	
 }
 
@@ -374,14 +391,20 @@ static void init()
 	
 	// Try read URL
 	persist_read_string(URL_KEY, values.url, sizeof(values.url));	
-			
+
   Tuplet initial_values[] = {
-    TupletCString(SPEED_KEY, SMILE_DEFAULT_VALUE),
-    TupletCString(HDG_KEY, ANGLE_DEFAULT_VALUE),
-    TupletCString(AWA_KEY, ANGLE_DEFAULT_VALUE),			
-	  TupletCString(BTW_KEY, ANGLE_DEFAULT_VALUE),
-	  TupletCString(DTW_KEY, ANGLE_DEFAULT_VALUE),			
-		TupletCString(TTG_KEY, ANGLE_DEFAULT_VALUE),
+    TupletCString(SPEED_KEY, ""),
+    TupletCString(DEPTH_KEY, ""),
+    TupletCString(HDG_KEY, ""),
+    TupletCString(AWA_KEY, ""),			
+	  TupletCString(BTW_KEY, ""),
+	  TupletCString(DTW_KEY, ""),			
+		TupletCString(TTG_KEY, ""),
+	  TupletCString(COG_KEY, ""),
+	  TupletCString(XTE_KEY, ""),			
+		TupletCString(SOG_KEY, ""),		
+		TupletCString(TARGET_SPEED_KEY, ""),				
+		TupletCString(TARGET_SPEED_PERCENT_KEY, ""),				
 		TupletCString(URL_KEY, values.url)		
   };
   app_sync_init(&sync, sync_buffer, sizeof(sync_buffer), initial_values, ARRAY_LENGTH(initial_values),
