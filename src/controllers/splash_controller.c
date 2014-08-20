@@ -130,6 +130,7 @@ void splash_controller_set_info_text(SplashController* splash_controller, char *
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "SplashController splash_controller_set_info_text");				
 	splash_controller->info_text = info_text;
 	text_layer_set_text(splash_controller->info_layer, splash_controller->info_text);
+	layer_mark_dirty(text_layer_get_layer(splash_controller->info_layer));
 }
 
 void splash_controller_set_updating(SplashController* splash_controller, bool updating) {

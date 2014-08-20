@@ -9,8 +9,8 @@
     "watchface": false
   },
   "appKeys": {
-    "Speed": 0,
-		"Depth": 1,
+    "SPEED": 0,
+		"DEPTH": 1,
 		"HDG": 2,
 		"AWA": 3,
 		"BTW": 4,
@@ -19,8 +19,12 @@
 		"COG": 7,		
 		"XTE": 8,
 		"SOG": 9,
-		"TARGET_SPEED": 10,
-		"TARGET_SPEED_PERCENT": 11,
+		"TWD": 10,
+		"TWS": 11,
+		"BFT": 12,		
+		"TARGET_SPEED": 13,
+		"TARGET_SPEED_PERCENT": 14,
+		"STARTTIME_INTERVAL1970": 15,
 		"URL": 255  
 	},
   "resources": {

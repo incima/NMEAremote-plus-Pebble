@@ -26,6 +26,7 @@ void trl_controller_load(Controller* controller)
   text_layer_set_background_color(trl_controller->top_value_layer, GColorClear);
   text_layer_set_font(trl_controller->top_value_layer, fonts_load_custom_font(resource_get_handle(FONT_OPENSANS_EXTRA_48_NUMBERS)));
   text_layer_set_text_alignment(trl_controller->top_value_layer, GTextAlignmentCenter);
+	text_layer_set_overflow_mode(trl_controller->top_value_layer, GTextOverflowModeWordWrap);
 	text_layer_set_text(trl_controller->top_value_layer, "");
 
   trl_controller->top_title_layer = text_layer_create(GRect(0, 64, 144, 40));
@@ -44,6 +45,7 @@ void trl_controller_load(Controller* controller)
   text_layer_set_text_color(trl_controller->left_value_layer, GColorBlack);	
   text_layer_set_font(trl_controller->left_value_layer, fonts_load_custom_font(resource_get_handle(FONT_OPENSANS_BOLD_24_NUMBERS)));
   text_layer_set_text_alignment(trl_controller->left_value_layer, GTextAlignmentCenter);
+	text_layer_set_overflow_mode(trl_controller->left_value_layer, GTextOverflowModeWordWrap);	
 	text_layer_set_text(trl_controller->left_value_layer, "");
   
 	trl_controller->left_title_layer = text_layer_create(GRect(0, 133, 70, 37));
@@ -62,6 +64,7 @@ void trl_controller_load(Controller* controller)
 	text_layer_set_text_color(trl_controller->right_value_layer, GColorBlack);
   text_layer_set_font(trl_controller->right_value_layer, fonts_load_custom_font(resource_get_handle(FONT_OPENSANS_BOLD_24_NUMBERS)));
   text_layer_set_text_alignment(trl_controller->right_value_layer, GTextAlignmentCenter);
+	text_layer_set_overflow_mode(trl_controller->right_value_layer, GTextOverflowModeWordWrap);		
 	text_layer_set_text(trl_controller->right_value_layer, "");
 				
   trl_controller->right_title_layer = text_layer_create(GRect(74, 133, 70, 37));

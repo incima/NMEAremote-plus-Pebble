@@ -1,5 +1,5 @@
 function formatSMile(v) {
-	if(!v || v == "") return "--.-";
+	if(!v || v == "") return "--.--";
 	return v.toFixed(2);
 }
 
@@ -21,14 +21,26 @@ function formatAngle(v) {
 
 function formatTime(v) {
 	if(!v || v == "") return "--:--";
-	var h = Math.floor(v / (60 * 60));
-	var div_min = v % (60 * 60);
+	
+	var d = Math.floor(v / (60 * 60 * 24));
+	var div_days = v % (60 * 60 * 24);
+	var h = Math.floor(div_days / (60 * 60));
+	var div_min = div_days % (60 * 60);
 	var m = Math.floor(div_min / 60);
 	var div_sec = div_min % 60;
 	var sec = Math.ceil(div_sec);
 	
 	var time_str = "";
-	if (h > 0) {
+	if (d > 0) {
+		if (d < 10) 
+			time_str += '0';
+		time_str += d.toFixed(0);
+		time_str += ':';
+		if (h < 10)
+				time_str += '0';
+		time_str += h.toFixed(0);		
+		return time_str;
+	} else if (h > 0) {
 		if (h < 10) 
 			time_str += '0';
 		time_str += h.toFixed(0);
@@ -67,14 +79,14 @@ function(e) {
 		var timerID = setInterval(reload,1000);		
 		function reload() {
 			var req = new XMLHttpRequest();
-			req.open('GET', e.payload.URL, true);
+			req.open('GET', e.payload.URL.trim() + "?SPEED,DEPTH,HDG,AWA,BTW,DTW,TTG,COG,XTE,SOG,TWD,TWS,BFT,TARGET_SPEED,TARGET_SPEED_PERCENT,STARTTIME_INTERVAL1970", true);
 			req.onload = function(e) {
 				if (req.readyState == 4) {
 			  	if(req.status == 200) {
 			       var response = JSON.parse(req.responseText);
 						 
-			       var speed = formatKnots(response.Speed);
-			       var depth = formatMeter(response.Depth);							 
+			       var speed = formatKnots(response.SPEED);
+			       var depth = formatMeter(response.DEPTH);							 
 			       var hdg = formatAngle(response.HDG);		   
 			       var awa = formatAngle(response.AWA);
 			       var btw = formatAngle(response.BTW);
@@ -83,11 +95,15 @@ function(e) {
 						 var cog = formatAngle(response.COG);
 						 var xte = formatKnots(response.XTE);
 						 var sog = formatKnots(response.SOG);
+						 var twd = formatAngle(response.TWD);
+						 var tws = formatKnots(response.TWS);
+						 var bft = formatKnots(response.BFT);
 						 var target_speed = formatKnots(response.TARGET_SPEED);
 						 var target_speed_percent = formatPercent(response.TARGET_SPEED_PERCENT);					
-						 	 						 
-			       Pebble.sendAppMessage({"Speed":speed, 
-						 											 	"Depth":depth,
+						 var starttime_interval1970 = formatPercent(response.STARTTIME_INTERVAL1970);			
+						 								 	 						 
+			       Pebble.sendAppMessage({"SPEED":speed, 
+						 											 	"DEPTH":depth,
 						 												"HDG":hdg, 
 																		"AWA":awa,
 																		"BTW":btw,
@@ -95,9 +111,13 @@ function(e) {
 																		"TTG":ttg,
 																		"COG":cog,
 																		"XTE":xte,
-																		"SOG":sog,																		
+																		"SOG":sog,			
+																		"TWD":twd,
+																		"TWS":tws,
+																		"BFT":bft,																																	
 																		"TARGET_SPEED":target_speed,
-																		"TARGET_SPEED_PERCENT":target_speed_percent
+																		"TARGET_SPEED_PERCENT":target_speed_percent,
+																		"STARTTIME_INTERVAL1970": starttime_interval1970
 																	});		   
 			     } 
 			   }
