@@ -191,7 +191,7 @@ static void app_timer_callback(void *data)
 			memcpy(values.sog, KNOTS_DEFAULT_VALUE, MIN(strlen(KNOTS_DEFAULT_VALUE)+1, sizeof(values.sog)));									
 			memcpy(values.twd, ANGLE_DEFAULT_VALUE, MIN(strlen(ANGLE_DEFAULT_VALUE)+1, sizeof(values.cog)));			
 			memcpy(values.tws, KNOTS_DEFAULT_VALUE, MIN(strlen(KNOTS_DEFAULT_VALUE)+1, sizeof(values.xte)));			
-			memcpy(values.bft, KNOTS_DEFAULT_VALUE, MIN(strlen(KNOTS_DEFAULT_VALUE)+1, sizeof(values.sog)));												
+			memcpy(values.bft, BFT_DEFAULT_VALUE, MIN(strlen(BFT_DEFAULT_VALUE)+1, sizeof(values.sog)));												
 			memcpy(values.target_speed, SMILE_DEFAULT_VALUE, MIN(strlen(SMILE_DEFAULT_VALUE)+1, sizeof(values.target_speed_percent)));			
 			memcpy(values.target_speed_percent, KNOTS_DEFAULT_VALUE, MIN(strlen(KNOTS_DEFAULT_VALUE)+1, sizeof(values.target_speed_percent)));									
 		}
@@ -292,7 +292,17 @@ static void window_up_click_handler(ClickRecognizerRef recognizer, void *context
      if (entry->window == window) {
 			 if (ptr->prev != &controller_list) {
 				 window_stack_pop(entry->window);			 
-			 }
+				 return;
+			 } else {
+				 /*
+				 while (ptr->next != &controller_list) {
+				 	 ptr = ptr->next;
+				 } 
+				 struct ControllerEntry *next_entry = list_entry(ptr, struct ControllerEntry, list);			 
+				 window_stack_push(next_entry->window, true);				 	
+				 */
+				 return;
+			 }    
 		 }
 	 }
 }
@@ -309,9 +319,19 @@ static void window_down_click_handler(ClickRecognizerRef recognizer, void *conte
      entry = list_entry(ptr, struct ControllerEntry, list);
      if (entry->window == window) {
 			 	if (ptr->next != &controller_list) {
-				 	entry = list_entry(ptr->next, struct ControllerEntry, list);			 
-				 	window_stack_push(entry->window, true);	
-				}		 
+				 	struct ControllerEntry *next_entry = list_entry(ptr->next, struct ControllerEntry, list);			 
+				 	window_stack_push(next_entry->window, true);	
+					return;
+				} else {
+					/*
+	 				while (ptr->prev != &controller_list) {
+	 				 	ptr = ptr->prev;
+	 				} 					
+				 	struct ControllerEntry *prev_entry = list_entry(ptr, struct ControllerEntry, list);			 
+				 	window_stack_push(prev_entry->window, true);						
+					*/
+					return;
+				}
 		 }
 	}
 }

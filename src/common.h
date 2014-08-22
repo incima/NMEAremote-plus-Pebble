@@ -13,6 +13,7 @@
 #define ANGLE_DEFAULT_VALUE "---°"
 #define TIME_DEFAULT_VALUE "--:--"
 #define METER_DEFAULT_VALUE "--.-"
+#define BFT_DEFAULT_VALUE "-"
 
 #define APP_TIMER_TIMEOUT 1000
 

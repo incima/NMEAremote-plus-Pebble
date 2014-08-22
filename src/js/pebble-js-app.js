@@ -8,6 +8,11 @@ function formatKnots(v) {
 	return v.toFixed(1);
 }
 
+function formatBft(v) {
+	if(!v || v == "") return "-";
+	return v.toFixed(0);	
+}
+
 function formatAngle(v) {
 	if(!v || v == "") return "---°";
 	var x = v.toFixed(0);
@@ -103,7 +108,7 @@ function(e) {
 						 var sog = formatKnots(response.SOG);
 						 var twd = formatAngle(response.TWD);
 						 var tws = formatKnots(response.TWS);
-						 var bft = formatKnots(response.BFT);
+						 var bft = formatBft(response.BFT);
 						 var target_speed = formatKnots(response.TARGET_SPEED);
 						 var target_speed_percent = formatPercent(response.TARGET_SPEED_PERCENT);					
 						 var starttime_interval1970 = formatPercent(response.STARTTIME_INTERVAL1970);			
