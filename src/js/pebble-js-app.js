@@ -11,6 +11,12 @@ function formatKnots(v) {
 function formatAngle(v) {
 	if(!v || v == "") return "---°";
 	var x = v.toFixed(0);
+	if (x < -100) 
+		return '-'+ x*-1 +"°";
+	if (x < -10) 
+		return '-0'+ x*-1 +"°";
+	if (x < 0)	
+		return '-00'+ x*-1 +"°";	
 	if (x < 10) 
 		return '00'+ x +"°";
 	else if (x < 100) 

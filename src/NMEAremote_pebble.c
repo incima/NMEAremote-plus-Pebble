@@ -163,8 +163,8 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
 	if (success) {
 		++sync_update_count;	
 		if (splash_controller && splash_controller->updating) {		
-			app_timer_register(2000, connect_success_timer_callback, NULL);
 			splash_controller_set_info_text(splash_controller, "CONNECTED");					
+			app_timer_register(1250, connect_success_timer_callback, NULL);			
 		}	
 	}
 }
@@ -454,7 +454,7 @@ static void init()
   app_message_open(inbound_size, outbound_size);
 	
 	// Try read URL
-	persist_read_string(URL_KEY, values.url, sizeof(values.url));	
+	//persist_read_string(URL_KEY, values.url, sizeof(values.url));	
 	if (strlen(values.url))
 		connect_to_url();
 		
@@ -475,7 +475,7 @@ static void init()
 		TupletCString(TARGET_SPEED_KEY, ""),	
 		TupletCString(TARGET_SPEED_PERCENT_KEY, ""),	
 		TupletInteger(STARTTIME_INTERVAL1970_KEY, (time_t)0),
-		TupletCString(URL_KEY, "")				
+		TupletCString(URL_KEY, "http://10.0.0.200:8080/json")				
   };
   app_sync_init(&sync, sync_buffer, sizeof(sync_buffer), initial_values, ARRAY_LENGTH(initial_values),
       sync_tuple_changed_callback, sync_error_callback, NULL);
