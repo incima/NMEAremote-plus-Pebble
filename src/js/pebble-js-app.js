@@ -1,10 +1,17 @@
 function formatSMile(v) {
 	if(!v || v == "") return "--.--";
-	return v.toFixed(2);
+	if (v < 100)
+		return v.toFixed(2);
+	else
+		return v.toFixed(0);
 }
 
 function formatKnots(v) {
-	if(!v || v == "") return "--.-";
+	if(!v || v == "") {
+		if (v == 0)
+			return "0.0";		
+		return "--.-";
+	}
 	return v.toFixed(1);
 }
 
@@ -90,14 +97,14 @@ function(e) {
 		var timerID = setInterval(reload,1000);		
 		function reload() {
 			var req = new XMLHttpRequest();
-			req.open('GET', e.payload.URL.trim() + "?SPEED,DEPTH,HDG,AWA,BTW,DTW,TTG,COG,XTE,SOG,TWD,TWS,BFT,TARGET_SPEED,TARGET_SPEED_PERCENT,STARTTIME_INTERVAL1970", true);
+			req.open('GET', e.payload.URL.trim() + "?Speed,Depth,HDG,AWA,BTW,DTW,TTG,COG,XTE,SOG,TWD,TWS,BFT,TARGET_SPEED,TARGET_SPEED_PERCENT,STARTTIME_INTERVAL1970", true);
 			req.onload = function(e) {
 				if (req.readyState == 4) {
 			  	if(req.status == 200) {
 			       var response = JSON.parse(req.responseText);
 						 
-			       var speed = formatKnots(response.SPEED);
-			       var depth = formatMeter(response.DEPTH);							 
+			       var speed = formatKnots(response.Speed);
+			       var depth = formatMeter(response.Depth);							 
 			       var hdg = formatAngle(response.HDG);		   
 			       var awa = formatAngle(response.AWA);
 			       var btw = formatAngle(response.BTW);
