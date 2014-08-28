@@ -474,7 +474,7 @@ static void init()
   app_message_open(inbound_size, outbound_size);
 	
 	// Try read URL
-	//persist_read_string(URL_KEY, values.url, sizeof(values.url));	
+	persist_read_string(URL_KEY, values.url, sizeof(values.url));	
 	if (strlen(values.url))
 		connect_to_url();
 		
@@ -495,7 +495,7 @@ static void init()
 		TupletCString(TARGET_SPEED_KEY, ""),	
 		TupletCString(TARGET_SPEED_PERCENT_KEY, ""),	
 		TupletInteger(STARTTIME_INTERVAL1970_KEY, (time_t)0),
-		TupletCString(URL_KEY, "http://10.0.0.200:8080/json")				
+		TupletCString(URL_KEY, "")				
   };
   app_sync_init(&sync, sync_buffer, sizeof(sync_buffer), initial_values, ARRAY_LENGTH(initial_values),
       sync_tuple_changed_callback, sync_error_callback, NULL);
