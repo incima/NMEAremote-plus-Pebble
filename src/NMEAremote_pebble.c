@@ -27,25 +27,7 @@ struct ControllerEntry {
 };
 struct list_head controller_list;
 	
-static struct {
-	char speed[8];
-	char depth[8];	
-	char hdg[8];	
-	char awa[8];	
-	char btw[8];	
-	char dtw[8];	
-	char ttg[8];	
-	char cog[8];	
-	char xte[8];	
-	char sog[8];			
-	char twd[8];	
-	char tws[8];	
-	char bft[8];				
-	char target_speed[8];
-	char target_speed_percent[8];		
-	time_t startime;
-	char url[124];
-} values;
+NMEAValues values;
 
 static void connect_to_url();
 
@@ -279,7 +261,7 @@ static void controller_did_unload(Controller* controller)
  Button events
  */
 
-static void window_up_click_handler(ClickRecognizerRef recognizer, void *context) {
+static void click_handler_prev_controller(ClickRecognizerRef recognizer, void *context) {
 	if(splash_window)
 		return;
 	
@@ -293,21 +275,12 @@ static void window_up_click_handler(ClickRecognizerRef recognizer, void *context
 			 if (ptr->prev != &controller_list) {
 				 window_stack_pop(entry->window);			 
 				 return;
-			 } else {
-				 /*
-				 while (ptr->next != &controller_list) {
-				 	 ptr = ptr->next;
-				 } 
-				 struct ControllerEntry *next_entry = list_entry(ptr, struct ControllerEntry, list);			 
-				 window_stack_push(next_entry->window, true);				 	
-				 */
-				 return;
 			 }    
 		 }
 	 }
 }
 
-static void window_down_click_handler(ClickRecognizerRef recognizer, void *context) {
+static void click_handler_next_controller(ClickRecognizerRef recognizer, void *context) {
 	if(splash_window)
 		return;
 
@@ -322,20 +295,11 @@ static void window_down_click_handler(ClickRecognizerRef recognizer, void *conte
 				 	struct ControllerEntry *next_entry = list_entry(ptr->next, struct ControllerEntry, list);			 
 				 	window_stack_push(next_entry->window, true);	
 					return;
-				} else {
-					/*
-	 				while (ptr->prev != &controller_list) {
-	 				 	ptr = ptr->prev;
-	 				} 					
-				 	struct ControllerEntry *prev_entry = list_entry(ptr, struct ControllerEntry, list);			 
-				 	window_stack_push(prev_entry->window, true);						
-					*/
-					return;
-				}
+				} 
 		 }
 	}
 }
-
+/*
 static void window_select_click_handler(ClickRecognizerRef recognizer, void *context) {
 	if(splash_window)
 		return;
@@ -343,12 +307,10 @@ static void window_select_click_handler(ClickRecognizerRef recognizer, void *con
 	Window *window = (Window *)context;
 	connect_to_url();
 }
-
+*/
 static void window_click_config_provider(void *context) {
-  window_single_click_subscribe(BUTTON_ID_BACK, window_up_click_handler);	
-  window_single_click_subscribe(BUTTON_ID_UP, window_up_click_handler);
-	window_single_click_subscribe(BUTTON_ID_DOWN, window_down_click_handler);		
-  window_single_click_subscribe(BUTTON_ID_SELECT, window_select_click_handler);
+  window_single_click_subscribe(BUTTON_ID_BACK, click_handler_prev_controller);	
+  window_single_click_subscribe(BUTTON_ID_SELECT, click_handler_next_controller);
 }
 
 /**

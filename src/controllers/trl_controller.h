@@ -5,9 +5,11 @@
 
 typedef struct {
 	Controller controller;
+	Layer *top_layer;
 	TextLayer *top_value_layer;
 	TextLayer *top_title_layer;
 
+	Layer *bottom_layer;
 	Layer *right_bg_layer;
 	TextLayer *right_value_layer;
 	TextLayer *right_title_layer;

@@ -1,6 +1,8 @@
 #ifndef COMMON_H_
 #define COMMON_H_
 
+#include <pebble.h>
+
 #define FONT_OPENSANS_EXTRA_48_NUMBERS RESOURCE_ID_FONT_OPENSANS_EXTRA_52_NUMBERS
 #define FONT_OPENSANS_LIGHT_24_TEXT RESOURCE_ID_FONT_OPENSANS_LIGHT_24_TEXT
 #define FONT_OPENSANS_BOLD_24_NUMBERS RESOURCE_ID_FONT_OPENSANS_BOLD_24_NUMBERS
@@ -40,5 +42,27 @@ enum NMEAkey {
 	/*Config*/
 	URL_KEY = 0xFF
 };
+
+typedef struct {
+	char speed[8];
+	char depth[8];	
+	char hdg[8];	
+	char awa[8];	
+	char btw[8];	
+	char dtw[8];	
+	char ttg[8];	
+	char cog[8];	
+	char xte[8];	
+	char sog[8];			
+	char twd[8];	
+	char tws[8];	
+	char bft[8];				
+	char target_speed[8];
+	char target_speed_percent[8];		
+	time_t startime;
+	char url[124];
+} NMEAValues;
+
+extern NMEAValues values;
 
 #endif /* COMMON_H_ */
