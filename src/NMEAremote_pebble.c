@@ -13,11 +13,7 @@ static unsigned long sync_update_count = 0;
 static Window *splash_window;
 static SplashController *splash_controller;
 typedef enum {
-	SPEED_CONTROLLER=0,
-	BTW_CONTROLLER,	
-	COG_CONTROLLER,		
-	DTW_CONTROLLER,
-	TWD_CONTROLLER
+	TRL_CONTROLLER=0,
 } ControllerID;
 struct ControllerEntry {
     struct list_head list;		
@@ -75,66 +71,82 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
 			break;
     case SPEED_KEY:
 			memcpy(values.speed, new_tuple->value->cstring, MIN(new_tuple->length, sizeof(values.speed)));					
+			values.speed_ts = time(NULL);
 			success = new_tuple->length > 1;
 			break;
 	  case DEPTH_KEY:
 			memcpy(values.depth, new_tuple->value->cstring, MIN(new_tuple->length, sizeof(values.depth)));					
+			values.depth_ts = time(NULL);
 			success = new_tuple->length > 1;			
 			break;
     case HDG_KEY:
 			memcpy(values.hdg, new_tuple->value->cstring, MIN(new_tuple->length, sizeof(values.hdg)));	
+			values.hdg_ts = time(NULL);
 			success = new_tuple->length > 1;
 			break;
     case AWA_KEY:
 			memcpy(values.awa, new_tuple->value->cstring, MIN(new_tuple->length, sizeof(values.awa)));		
+			values.awa_ts = time(NULL);
 			success = new_tuple->length > 1;
 			break;
     case BTW_KEY:
 			memcpy(values.btw, new_tuple->value->cstring, MIN(new_tuple->length, sizeof(values.btw)));	
+			values.btw_ts = time(NULL);
 			success = new_tuple->length > 1;
 			break;
     case DTW_KEY:
 			memcpy(values.dtw, new_tuple->value->cstring, MIN(new_tuple->length, sizeof(values.dtw)));		
+			values.dtw_ts = time(NULL);
 			success = new_tuple->length > 1;
 			break;
     case TTG_KEY:
 			memcpy(values.ttg, new_tuple->value->cstring, MIN(new_tuple->length, sizeof(values.ttg)));	
+			values.ttg_ts = time(NULL);
 			success = new_tuple->length > 1;
 			break;		
 		case COG_KEY:
 			memcpy(values.cog, new_tuple->value->cstring, MIN(new_tuple->length, sizeof(values.cog)));	
+			values.cog_ts = time(NULL);
 			success = new_tuple->length > 1;
 			break;				
 		case XTE_KEY:
 			memcpy(values.xte, new_tuple->value->cstring, MIN(new_tuple->length, sizeof(values.xte)));	
+			values.xte_ts = time(NULL);
 			success = new_tuple->length > 1;
 			break;				
 		case SOG_KEY:
 			memcpy(values.sog, new_tuple->value->cstring, MIN(new_tuple->length, sizeof(values.sog)));	
+			values.sog_ts = time(NULL);
 			success = new_tuple->length > 1;
 			break;				
 		case TWD_KEY:
 			memcpy(values.twd, new_tuple->value->cstring, MIN(new_tuple->length, sizeof(values.twd)));	
+			values.twd_ts = time(NULL);
 			success = new_tuple->length > 1;
 			break;				
-		case TWS_KEY:
+		case TWS_KEY:		
 			memcpy(values.tws, new_tuple->value->cstring, MIN(new_tuple->length, sizeof(values.tws)));	
+			values.tws_ts = time(NULL);
 			success = new_tuple->length > 1;
 			break;				
 		case BFT_KEY:
 			memcpy(values.bft, new_tuple->value->cstring, MIN(new_tuple->length, sizeof(values.bft)));	
+			values.bft_ts = time(NULL);
 			success = new_tuple->length > 1;
 			break;										
-		case TARGET_SPEED_KEY:
+		case TARGET_SPEED_KEY:			
 			memcpy(values.target_speed, new_tuple->value->cstring, MIN(new_tuple->length, sizeof(values.target_speed)));	
+			values.target_speed_ts = time(NULL);
 			success = new_tuple->length > 1;
 			break;				
 		case TARGET_SPEED_PERCENT_KEY:
 			memcpy(values.target_speed_percent, new_tuple->value->cstring, MIN(new_tuple->length, sizeof(values.target_speed_percent)));	
+			values.target_speed_percent_ts = time(NULL);
 			success = new_tuple->length > 1;			
 			break;				
 		case STARTTIME_INTERVAL1970_KEY:		
 			values.startime = (time_t)new_tuple->value->uint32;
+			values.startime_ts = time(NULL);
 			success = values.startime > 0;			
 			break;
 		default:
@@ -154,30 +166,45 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
 static void app_timer_callback(void *data) 
 {  	
   APP_LOG(APP_LOG_LEVEL_DEBUG, "app_timer_callback: %lu", sync_update_count);			
-	static unsigned long loss = 0;	
 	if (sync_update_count > last_sync_update_count) {
 		sync_update_color = (sync_update_color == GColorBlack ? GColorWhite : GColorBlack);							
-		loss = 0;
-	} else {
+	} 
+	else {
 		sync_update_color = GColorBlack;
-		if (++loss > 10) {
-			memcpy(values.speed, KNOTS_DEFAULT_VALUE, MIN(strlen(KNOTS_DEFAULT_VALUE)+1, sizeof(values.speed)));	
-			memcpy(values.depth, METER_DEFAULT_VALUE, MIN(strlen(METER_DEFAULT_VALUE)+1, sizeof(values.depth)));			
-			memcpy(values.hdg, ANGLE_DEFAULT_VALUE, MIN(strlen(ANGLE_DEFAULT_VALUE)+1, sizeof(values.hdg)));		
-			memcpy(values.awa, ANGLE_DEFAULT_VALUE, MIN(strlen(ANGLE_DEFAULT_VALUE)+1, sizeof(values.awa)));			
-			memcpy(values.btw, ANGLE_DEFAULT_VALUE, MIN(strlen(ANGLE_DEFAULT_VALUE)+1, sizeof(values.btw)));	
-			memcpy(values.dtw, SMILE_DEFAULT_VALUE, MIN(strlen(SMILE_DEFAULT_VALUE)+1, sizeof(values.dtw)));		
-			memcpy(values.ttg, TIME_DEFAULT_VALUE, MIN(strlen(TIME_DEFAULT_VALUE)+1, sizeof(values.ttg)));			
-			memcpy(values.cog, ANGLE_DEFAULT_VALUE, MIN(strlen(ANGLE_DEFAULT_VALUE)+1, sizeof(values.cog)));			
-			memcpy(values.xte, SMILE_DEFAULT_VALUE, MIN(strlen(SMILE_DEFAULT_VALUE)+1, sizeof(values.xte)));			
-			memcpy(values.sog, KNOTS_DEFAULT_VALUE, MIN(strlen(KNOTS_DEFAULT_VALUE)+1, sizeof(values.sog)));									
-			memcpy(values.twd, ANGLE_DEFAULT_VALUE, MIN(strlen(ANGLE_DEFAULT_VALUE)+1, sizeof(values.cog)));			
-			memcpy(values.tws, KNOTS_DEFAULT_VALUE, MIN(strlen(KNOTS_DEFAULT_VALUE)+1, sizeof(values.xte)));			
-			memcpy(values.bft, BFT_DEFAULT_VALUE, MIN(strlen(BFT_DEFAULT_VALUE)+1, sizeof(values.sog)));												
-			memcpy(values.target_speed, SMILE_DEFAULT_VALUE, MIN(strlen(SMILE_DEFAULT_VALUE)+1, sizeof(values.target_speed_percent)));			
-			memcpy(values.target_speed_percent, KNOTS_DEFAULT_VALUE, MIN(strlen(KNOTS_DEFAULT_VALUE)+1, sizeof(values.target_speed_percent)));									
-		}
 	}
+	
+	time_t now = time(NULL);
+	if (now - values.speed_ts > 10)
+		memcpy(values.speed, KNOTS_DEFAULT_VALUE, MIN(strlen(KNOTS_DEFAULT_VALUE)+1, sizeof(values.speed)));	
+	if (now - values.depth_ts > 10)		
+		memcpy(values.depth, METER_DEFAULT_VALUE, MIN(strlen(METER_DEFAULT_VALUE)+1, sizeof(values.depth)));			
+	if (now - values.hdg_ts > 10)		
+		memcpy(values.hdg, ANGLE_DEFAULT_VALUE, MIN(strlen(ANGLE_DEFAULT_VALUE)+1, sizeof(values.hdg)));		
+	if (now - values.awa_ts > 10)		
+		memcpy(values.awa, ANGLE_DEFAULT_VALUE, MIN(strlen(ANGLE_DEFAULT_VALUE)+1, sizeof(values.awa)));			
+	if (now - values.btw_ts > 10)		
+		memcpy(values.btw, ANGLE_DEFAULT_VALUE, MIN(strlen(ANGLE_DEFAULT_VALUE)+1, sizeof(values.btw)));	
+	if (now - values.dtw_ts > 10)		
+		memcpy(values.dtw, SMILE_DEFAULT_VALUE, MIN(strlen(SMILE_DEFAULT_VALUE)+1, sizeof(values.dtw)));		
+	if (now - values.ttg_ts > 10)		
+		memcpy(values.ttg, TIME_DEFAULT_VALUE, MIN(strlen(TIME_DEFAULT_VALUE)+1, sizeof(values.ttg)));			
+	if (now - values.cog_ts > 10)		
+		memcpy(values.cog, ANGLE_DEFAULT_VALUE, MIN(strlen(ANGLE_DEFAULT_VALUE)+1, sizeof(values.cog)));			
+	if (now - values.xte_ts > 10)		
+		memcpy(values.xte, SMILE_DEFAULT_VALUE, MIN(strlen(SMILE_DEFAULT_VALUE)+1, sizeof(values.xte)));			
+	if (now - values.sog_ts > 10)		
+		memcpy(values.sog, KNOTS_DEFAULT_VALUE, MIN(strlen(KNOTS_DEFAULT_VALUE)+1, sizeof(values.sog)));									
+	if (now - values.twd_ts > 10)		
+		memcpy(values.twd, ANGLE_DEFAULT_VALUE, MIN(strlen(ANGLE_DEFAULT_VALUE)+1, sizeof(values.cog)));	
+	if (now - values.tws_ts > 10)				
+		memcpy(values.tws, KNOTS_DEFAULT_VALUE, MIN(strlen(KNOTS_DEFAULT_VALUE)+1, sizeof(values.xte)));			
+	if (now - values.bft_ts > 10)		
+		memcpy(values.bft, BFT_DEFAULT_VALUE, MIN(strlen(BFT_DEFAULT_VALUE)+1, sizeof(values.sog)));												
+	if (now - values.target_speed_ts > 10)		
+		memcpy(values.target_speed, SMILE_DEFAULT_VALUE, MIN(strlen(SMILE_DEFAULT_VALUE)+1, sizeof(values.target_speed)));			
+	if (now - values.target_speed_percent_ts > 10)
+		memcpy(values.target_speed_percent, KNOTS_DEFAULT_VALUE, MIN(strlen(KNOTS_DEFAULT_VALUE)+1, sizeof(values.target_speed_percent)));									
+	
 	Window* top_window = window_stack_get_top_window();	
 	if (top_window == splash_window)
 		controller_redraw(splash_controller_get_controller(splash_controller));									
@@ -187,57 +214,6 @@ static void app_timer_callback(void *data)
 	  list_for_each(ptr, &controller_list) {
 	     entry = list_entry(ptr, struct ControllerEntry, list);
 	     if (entry->window == top_window) {
-				 switch (entry->controllerID) {
-						case SPEED_CONTROLLER: {
-							TRLController *trl_controller = controller_get_trl_controller(entry->controller);
-							trl_controller->top_title = "SPEED";
-							trl_controller->left_title = "HDG";
-							trl_controller->right_title = "AWA";			
-							trl_controller->top_value = values.speed;
-							trl_controller->left_value = values.hdg;
-							trl_controller->right_value = values.awa;								
-						} break;
-						
-						case BTW_CONTROLLER: {
-							TRLController *trl_controller = controller_get_trl_controller(entry->controller);							
-							trl_controller->top_title = "BTW";
-							trl_controller->left_title = "DTW";
-							trl_controller->right_title = "TTG";		
-							trl_controller->top_value = values.btw;
-							trl_controller->left_value = values.dtw;
-							trl_controller->right_value = values.ttg;						
-						} break;
-					 	
-						case COG_CONTROLLER: {
-							TRLController *trl_controller = controller_get_trl_controller(entry->controller);							
-							trl_controller->top_title = "BTW";
-							trl_controller->left_title = "COG";
-							trl_controller->right_title = "XTE";		
-							trl_controller->top_value = values.btw;
-							trl_controller->left_value = values.cog;
-							trl_controller->right_value = values.xte;		
-						} break;					 
-						
-					 	case DTW_CONTROLLER: {
-							TRLController *trl_controller = controller_get_trl_controller(entry->controller);							
-					 		trl_controller->top_title = "DTW";
-					 		trl_controller->left_title = "SOG";
-					 		trl_controller->right_title = "TTG";		
-					 		trl_controller->top_value = values.dtw;
-					 		trl_controller->left_value = values.sog;
-					 		trl_controller->right_value = values.ttg;	
-						} break;
-						
-					 	case TWD_CONTROLLER: {
-							TRLController *trl_controller = controller_get_trl_controller(entry->controller);							
-					 		trl_controller->top_title = "TWD";
-					 		trl_controller->left_title = "TWS";
-					 		trl_controller->right_title = "BFT";		
-					 		trl_controller->top_value = values.twd;
-					 		trl_controller->left_value = values.tws;
-					 		trl_controller->right_value = values.bft;	
-						} break;						
-				 }
 				 controller_redraw(entry->controller);												 
 				 controller_redraw_update_layer(entry->controller, sync_update_color);												 			 				 
 	     }			 
@@ -425,11 +401,7 @@ static void init()
 	load_splash_window();	
 	window_stack_push(splash_window, true);	
 	
-	load_trl_window_for_controller_id(SPEED_CONTROLLER);
-	load_trl_window_for_controller_id(BTW_CONTROLLER);		
-	load_trl_window_for_controller_id(COG_CONTROLLER);		
-	load_trl_window_for_controller_id(DTW_CONTROLLER);		
-	load_trl_window_for_controller_id(TWD_CONTROLLER);
+	load_trl_window_for_controller_id(TRL_CONTROLLER);
 								
   const int inbound_size = app_message_inbox_size_maximum();
   const int outbound_size = app_message_outbox_size_maximum();

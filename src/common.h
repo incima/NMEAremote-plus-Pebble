@@ -45,22 +45,39 @@ enum NMEAkey {
 
 typedef struct {
 	char speed[8];
+	time_t speed_ts;
 	char depth[8];	
+	time_t depth_ts;	
 	char hdg[8];	
+	time_t hdg_ts;
 	char awa[8];	
+	time_t awa_ts;
 	char btw[8];	
+	time_t btw_ts;
 	char dtw[8];	
+	time_t dtw_ts;
 	char ttg[8];	
+	time_t ttg_ts;
 	char cog[8];	
+	time_t cog_ts;
 	char xte[8];	
-	char sog[8];			
+	time_t xte_ts;
+	char sog[8];	
+	time_t sog_ts;		
 	char twd[8];	
+	time_t twd_ts;
 	char tws[8];	
-	char bft[8];				
+	time_t tws_ts;
+	char bft[8];	
+	time_t bft_ts;			
 	char target_speed[8];
+	time_t target_speed_ts;
 	char target_speed_percent[8];		
+	time_t target_speed_percent_ts;
 	time_t startime;
+	time_t startime_ts;
 	char url[124];
+	time_t url_ts;
 } NMEAValues;
 
 extern NMEAValues values;

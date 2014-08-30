@@ -19,13 +19,7 @@ typedef struct {
 	TextLayer *left_title_layer;
 
 	Layer *circle_layer;
-
-	char *top_value;
-	char *left_value;
-	char *right_value;	
-	char *top_title;
-	char *left_title;
-	char *right_title;
+	
 } TRLController;
 
 

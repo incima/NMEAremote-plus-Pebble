@@ -103,12 +103,12 @@ void trl_controller_redaw(Controller* controller)
 {
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLController trl_controller_redraw");		
 	TRLController *trl_controller = controller_get_trl_controller(controller);		
-	text_layer_set_text(trl_controller->top_title_layer, trl_controller->top_title);	
-	text_layer_set_text(trl_controller->top_value_layer, trl_controller->top_value);
-	text_layer_set_text(trl_controller->left_title_layer, trl_controller->left_title);	
-	text_layer_set_text(trl_controller->left_value_layer, trl_controller->left_value);	
-	text_layer_set_text(trl_controller->right_title_layer, trl_controller->right_title);			
-	text_layer_set_text(trl_controller->right_value_layer, trl_controller->right_value);			
+	text_layer_set_text(trl_controller->top_title_layer, "SPEED");	
+	text_layer_set_text(trl_controller->top_value_layer, values.speed);
+	text_layer_set_text(trl_controller->left_title_layer, "HDG");	
+	text_layer_set_text(trl_controller->left_value_layer, values.hdg);	
+	text_layer_set_text(trl_controller->right_title_layer, "AWA");			
+	text_layer_set_text(trl_controller->right_value_layer, values.awa);			
 }
 
 void trl_controller_destroy(Controller* controller) 
