@@ -237,12 +237,10 @@ static void controller_did_unload(Controller* controller)
  Button events
  */
 
-static void click_handler_prev_controller(ClickRecognizerRef recognizer, void *context) {
+static void click_handler_prev_controller(ClickRecognizerRef recognizer, Window *window) {
 	if(splash_window)
 		return;
-	
-	Window *window = (Window *)context;
-	
+		
 	struct list_head *ptr;	
 	struct ControllerEntry *entry;		
   list_for_each(ptr, &controller_list) {
@@ -256,11 +254,9 @@ static void click_handler_prev_controller(ClickRecognizerRef recognizer, void *c
 	 }
 }
 
-static void click_handler_next_controller(ClickRecognizerRef recognizer, void *context) {
+static void click_handler_next_controller(ClickRecognizerRef recognizer, Window *window) {
 	if(splash_window)
 		return;
-
-	Window *window = (Window *)context;
 	
 	struct list_head *ptr;	
 	struct ControllerEntry *entry;		
@@ -284,9 +280,9 @@ static void window_select_click_handler(ClickRecognizerRef recognizer, void *con
 	connect_to_url();
 }
 */
-static void window_click_config_provider(void *context) {
-  window_single_click_subscribe(BUTTON_ID_BACK, click_handler_prev_controller);	
-  window_single_click_subscribe(BUTTON_ID_SELECT, click_handler_next_controller);
+static void window_click_config_provider(Window *window) {
+  window_single_click_subscribe(BUTTON_ID_BACK, (ClickHandler)click_handler_prev_controller);	
+  window_single_click_subscribe(BUTTON_ID_SELECT, (ClickHandler)click_handler_next_controller);
 }
 
 /**
@@ -335,7 +331,7 @@ static void load_trl_window_for_controller_id(ControllerID controllerID)
 	list_add_tail(&entry->list, &controller_list);		
   window_set_background_color(entry->window, GColorBlack);	
   window_set_fullscreen(entry->window, true);
-  window_set_click_config_provider(entry->window, window_click_config_provider);		
+  window_set_click_config_provider(entry->window, (ClickConfigProvider)window_click_config_provider);		
   window_set_window_handlers(entry->window, (WindowHandlers) {
     .load = trl_window_load,
     .unload = trl_window_unload
