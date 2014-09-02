@@ -2,7 +2,7 @@
 #define TRL_BOTTOM_VIEW_H_
 
 #include <pebble.h>
-#include "controllers/view.h"
+#include "view.h"
 
 typedef struct {
 	View base;

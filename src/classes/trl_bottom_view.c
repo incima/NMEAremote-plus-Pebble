@@ -16,6 +16,8 @@ TRLBottomView* trl_bottom_view_from_view(View *view)
 
 void trl_bottom_view_load(View *view)
 {
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLBottomView trl_bottom_view_load");	
+		
 	TRLBottomView *bottom_view = trl_bottom_view_from_view(view);
 			
 	// bottom layer
@@ -28,7 +30,7 @@ void trl_bottom_view_load(View *view)
   bottom_view->left_value_layer = text_layer_create(GRect(0, 0, 70, 24));
   text_layer_set_background_color(bottom_view->left_value_layer, GColorClear);
   text_layer_set_text_color(bottom_view->left_value_layer, GColorBlack);	
-  text_layer_set_font(bottom_view->left_value_layer, fonts_load_custom_font(resource_get_handle(FONT_OPENSANS_BOLD_24_NUMBERS)));
+  //text_layer_set_font(bottom_view->left_value_layer, fonts_load_custom_font(resource_get_handle(FONT_OPENSANS_BOLD_24_NUMBERS)));
   text_layer_set_text_alignment(bottom_view->left_value_layer, GTextAlignmentCenter);
 	text_layer_set_overflow_mode(bottom_view->left_value_layer, GTextOverflowModeWordWrap);	
 	text_layer_set_text(bottom_view->left_value_layer, bottom_view->left_value);
@@ -36,7 +38,7 @@ void trl_bottom_view_load(View *view)
 	bottom_view->left_title_layer = text_layer_create(GRect(0, 27, 70, 37));
   text_layer_set_background_color(bottom_view->left_title_layer, GColorClear);
 	text_layer_set_text_color(bottom_view->left_title_layer, GColorBlack);
-  text_layer_set_font(bottom_view->left_title_layer, fonts_load_custom_font(resource_get_handle(FONT_OPENSANS_EXTRA_24_TEXT)));
+  //text_layer_set_font(bottom_view->left_title_layer, fonts_load_custom_font(resource_get_handle(FONT_OPENSANS_EXTRA_24_TEXT)));
   text_layer_set_text_alignment(bottom_view->left_title_layer, GTextAlignmentCenter);
 	text_layer_set_text(bottom_view->left_title_layer, bottom_view->left_title);
 	
@@ -47,7 +49,7 @@ void trl_bottom_view_load(View *view)
   bottom_view->right_value_layer = text_layer_create(GRect(74, 0, 70, 24));
   text_layer_set_background_color(bottom_view->right_value_layer, GColorClear);
 	text_layer_set_text_color(bottom_view->right_value_layer, GColorBlack);
-  text_layer_set_font(bottom_view->right_value_layer, fonts_load_custom_font(resource_get_handle(FONT_OPENSANS_BOLD_24_NUMBERS)));
+  //text_layer_set_font(bottom_view->right_value_layer, fonts_load_custom_font(resource_get_handle(FONT_OPENSANS_BOLD_24_NUMBERS)));
   text_layer_set_text_alignment(bottom_view->right_value_layer, GTextAlignmentCenter);
 	text_layer_set_overflow_mode(bottom_view->right_value_layer, GTextOverflowModeWordWrap);		
 	text_layer_set_text(bottom_view->right_value_layer, bottom_view->right_value);
@@ -55,7 +57,7 @@ void trl_bottom_view_load(View *view)
   bottom_view->right_title_layer = text_layer_create(GRect(74, 27, 70, 37));
   text_layer_set_background_color(bottom_view->right_title_layer, GColorClear);
 	text_layer_set_text_color(bottom_view->right_title_layer, GColorBlack);
-  text_layer_set_font(bottom_view->right_title_layer, fonts_load_custom_font(resource_get_handle(FONT_OPENSANS_EXTRA_24_TEXT)));
+  //text_layer_set_font(bottom_view->right_title_layer, fonts_load_custom_font(resource_get_handle(FONT_OPENSANS_EXTRA_24_TEXT)));
   text_layer_set_text_alignment(bottom_view->right_title_layer, GTextAlignmentCenter);
 	text_layer_set_text(bottom_view->right_title_layer, bottom_view->right_title);
 
@@ -70,6 +72,8 @@ void trl_bottom_view_load(View *view)
 
 void trl_bottom_view_unload(View *view)
 {
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLBottomView trl_bottom_view_unload");	
+		
 	TRLBottomView *bottom_view = trl_bottom_view_from_view(view);
 		
   text_layer_destroy(bottom_view->left_value_layer), bottom_view->left_value_layer = NULL;
@@ -83,6 +87,8 @@ void trl_bottom_view_unload(View *view)
 
 TRLBottomView* trl_bottom_view_create(char* left_title, char *left_value, char *right_title, char *right_value)
 {
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLBottomView trl_bottom_view_create");	
+		
 	TRLBottomView *bottom_view = malloc(sizeof(TRLBottomView));
 	memset(bottom_view, 0, sizeof(TRLBottomView));
 	__view_init(&bottom_view->base, (ViewVTable) {
@@ -98,6 +104,8 @@ TRLBottomView* trl_bottom_view_create(char* left_title, char *left_value, char *
 
 void trl_bottom_view_destroy(TRLBottomView *bottom_view) 
 {
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLBottomView trl_bottom_view_destroy");	
+		
 	view_unload(&bottom_view->base);
 	free(bottom_view);	
 }

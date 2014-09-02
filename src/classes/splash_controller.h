@@ -1,7 +1,7 @@
 #ifndef SPLASH_CONTROLLER_H_
 #define SPLASH_CONTROLLER_H_
 
-#include <controllers/controller.h>
+#include "controller.h"
 
 typedef struct {
 	Controller controller;

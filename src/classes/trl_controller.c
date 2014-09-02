@@ -67,12 +67,6 @@ void trl_controller_redaw(Controller* controller)
 	TRLController *trl_controller = controller_get_trl_controller(controller);		
 }
 
-void trl_controller_destroy(Controller* controller) 
-{
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLController trl_controller_destroy");	
-	TRLController *trl_controller = controller_get_trl_controller(controller);	
-	free(trl_controller);
-}
 
 static PropertyAnimation *curr_prop_animation = NULL;
 static PropertyAnimation *next_prop_animation = NULL;
@@ -200,6 +194,15 @@ void trl_controller_click_config_provider(Window *window)
 {
   window_single_click_subscribe(BUTTON_ID_BACK, (ClickHandler)trl_controller_click_handler_prev_value);	
   window_single_click_subscribe(BUTTON_ID_UP, (ClickHandler)trl_controller_click_handler_next_top_value);
+}
+
+void trl_controller_destroy(Controller* controller) 
+{
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLController trl_controller_destroy");	
+	TRLController *trl_controller = controller_get_trl_controller(controller);	
+	destroy_property_animation(&curr_prop_animation);	
+	destroy_property_animation(&next_prop_animation);		
+	free(trl_controller);
 }
 
 TRLController* trl_controller_create(Window* window, ControllerHandlers handlers) 

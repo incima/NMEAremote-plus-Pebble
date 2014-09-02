@@ -9,6 +9,8 @@ TRLTopView* trl_top_view_from_view(View *view)
 
 void trl_top_view_load(View *view)
 {
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLTopView trl_top_view_load");		
+
 	TRLTopView *top_view = trl_top_view_from_view(view);
 
 	// Top layer	
@@ -17,7 +19,7 @@ void trl_top_view_load(View *view)
   top_view->top_value_layer = text_layer_create(GRect(0, 10, 144, 54));
   text_layer_set_text_color(top_view->top_value_layer, GColorWhite);
   text_layer_set_background_color(top_view->top_value_layer, GColorClear);
-  text_layer_set_font(top_view->top_value_layer, fonts_load_custom_font(resource_get_handle(FONT_OPENSANS_EXTRA_48_NUMBERS)));
+  //text_layer_set_font(top_view->top_value_layer, fonts_load_custom_font(resource_get_handle(FONT_OPENSANS_EXTRA_48_NUMBERS)));
   text_layer_set_text_alignment(top_view->top_value_layer, GTextAlignmentCenter);
 	text_layer_set_overflow_mode(top_view->top_value_layer, GTextOverflowModeWordWrap);
 	text_layer_set_text(top_view->top_value_layer, top_view->value);
@@ -25,7 +27,7 @@ void trl_top_view_load(View *view)
   top_view->top_title_layer = text_layer_create(GRect(0, 64, 144, 40));
   text_layer_set_text_color(top_view->top_title_layer, GColorWhite);
   text_layer_set_background_color(top_view->top_title_layer, GColorClear);
-  text_layer_set_font(top_view->top_title_layer, fonts_load_custom_font(resource_get_handle(FONT_OPENSANS_LIGHT_24_TEXT)));
+  //text_layer_set_font(top_view->top_title_layer, fonts_load_custom_font(resource_get_handle(FONT_OPENSANS_LIGHT_24_TEXT)));
   text_layer_set_text_alignment(top_view->top_title_layer, GTextAlignmentCenter);
 	text_layer_set_text(top_view->top_title_layer, top_view->title);
 	
@@ -35,14 +37,19 @@ void trl_top_view_load(View *view)
 
 void trl_top_view_unload(View *view)
 {
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLTopView trl_top_view_unload");	
+	
 	TRLTopView *top_view = trl_top_view_from_view(view);	
-  text_layer_destroy(top_view->top_value_layer), top_view->top_value_layer = NULL;
+  
+	text_layer_destroy(top_view->top_value_layer), top_view->top_value_layer = NULL;
   text_layer_destroy(top_view->top_title_layer), top_view->top_title_layer = NULL;		
 	layer_destroy(top_view->base.root_layer), top_view->base.root_layer = NULL;				
 }
 
 TRLTopView* trl_top_view_create(char* title, char *value)
 {
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLTopView trl_top_view_create");		
+		
 	TRLTopView *top_view = malloc(sizeof(TRLTopView));
 	memset(top_view, 0, sizeof(TRLTopView));
 	__view_init(&top_view->base, (ViewVTable) {
@@ -56,6 +63,8 @@ TRLTopView* trl_top_view_create(char* title, char *value)
 
 void trl_top_view_destroy(TRLTopView *top_view)
 {
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLTopView trl_top_view_destroy");		
+		
 	view_unload(&top_view->base);
 	free(top_view);
 }

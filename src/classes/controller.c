@@ -18,6 +18,7 @@ void controller_load(Controller* controller)
 	ControllerVTable *vtable = controller_get_vtable(controller);
 	if (vtable->load)
 		vtable->load(controller);	
+	controller->loaded = true;	
 	if (controller->handlers.did_load)
 		controller->handlers.did_load(controller);
 }
@@ -25,10 +26,11 @@ void controller_load(Controller* controller)
 void controller_unload(Controller* controller) 
 {
 	ControllerVTable *vtable = controller_get_vtable(controller);	
-	if (vtable->unload)
-		vtable->unload(controller);
 	if (controller->update_layer) 
 		layer_destroy(controller->update_layer), controller->update_layer = NULL;
+	if (vtable->unload)
+		vtable->unload(controller);
+	controller->loaded = false;
 	if (controller->handlers.did_unload)
 		controller->handlers.did_unload(controller);	
 }
@@ -36,6 +38,8 @@ void controller_unload(Controller* controller)
 void controller_destroy(Controller* controller)
 {
 	ControllerVTable *vtable = controller_get_vtable(controller);	
+	if (controller->loaded)
+		controller_unload(controller);
 	if (vtable->destroy)
 		vtable->destroy(controller);
 }

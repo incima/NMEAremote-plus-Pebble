@@ -41,7 +41,7 @@ void splash_controller_load(Controller* controller)
   splash_controller->info_layer = text_layer_create(GRect(0, ypos, 144, 12));
   text_layer_set_text_color(splash_controller->info_layer, GColorWhite);
   text_layer_set_background_color(splash_controller->info_layer, GColorClear);
-  text_layer_set_font(splash_controller->info_layer, fonts_load_custom_font(resource_get_handle(FONT_OPENSANS_12_TEXT)));
+  //text_layer_set_font(splash_controller->info_layer, fonts_load_custom_font(resource_get_handle(FONT_OPENSANS_12_TEXT)));
   text_layer_set_text_alignment(splash_controller->info_layer, GTextAlignmentCenter);
 	text_layer_set_text(splash_controller->info_layer, "");	
 	layer_add_child(window_layer, text_layer_get_layer(splash_controller->info_layer));			
@@ -50,10 +50,15 @@ void splash_controller_load(Controller* controller)
 void splash_controller_unload(Controller* controller) 
 {
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "SplashController splash_controller_unload");		
+	
 	SplashController* splash_controller = controller_get_splash_controller(controller);
 	if (splash_controller->splash_bitmap)
 		gbitmap_destroy(splash_controller->splash_bitmap);
 	bitmap_layer_destroy(splash_controller->splash_layer);
+	text_layer_destroy(splash_controller->info_layer);
+	layer_destroy(splash_controller->circle_layer1);
+	layer_destroy(splash_controller->circle_layer2);
+	layer_destroy(splash_controller->circle_layer3);		
 }
 
 void splash_controller_redraw(Controller* controller) 

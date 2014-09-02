@@ -2,10 +2,10 @@
 #define TRL_CONTROLLER_H_
 
 #include <pebble.h>
-#include <list.h>
-#include <controllers/controller.h>
-#include <controllers/trl_top_view.h>
-#include <controllers/trl_bottom_view.h>
+#include "list.h"
+#include "controller.h"
+#include "trl_top_view.h"
+#include "trl_bottom_view.h"
 
 
 typedef struct {

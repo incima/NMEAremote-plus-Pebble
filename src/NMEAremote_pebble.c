@@ -1,8 +1,8 @@
 #include <pebble.h>
 #include "common.h"
 #include "list.h"
-#include "controllers/trl_controller.h"
-#include "controllers/splash_controller.h"
+#include "classes/trl_controller.h"
+#include "classes/splash_controller.h"
 
 #define SYNC_UPDATE_TIMEOUT 10
 static AppSync sync;
@@ -10,8 +10,8 @@ static uint8_t sync_buffer[1024];
 static GColor sync_update_color = GColorWhite;
 static unsigned long last_sync_update_count = 0;
 static unsigned long sync_update_count = 0;
-static Window *splash_window;
-static SplashController *splash_controller;
+static Window *splash_window = NULL;
+static SplashController *splash_controller = NULL;
 typedef enum {
 	TRL_CONTROLLER=0,
 } ControllerID;
@@ -45,8 +45,7 @@ static void connect_success_timer_callback(void *data)
 			struct ControllerEntry *entry = list_entry(ptr, struct ControllerEntry, list);	
 			window_stack_push(entry->window, true);			
 		}
-		window_stack_remove(splash_window, false);	
-		window_destroy(splash_window), splash_window = NULL;						
+		window_stack_remove(splash_window, false);						
 	}
 	// Save URL
 	if (strlen(values.url)) 
@@ -60,9 +59,9 @@ static void sync_error_callback(DictionaryResult dict_error, AppMessageResult ap
 
 static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tuple, const Tuple* old_tuple, void* context) 
 {		
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "sync_tuple_changed_callback: %u", (unsigned int)key);		
-	bool success = false;
+  //APP_LOG(APP_LOG_LEVEL_DEBUG, "sync_tuple_changed_callback: %u", (unsigned int)key);		
 	
+	bool success = false;	
   switch (key) {
 		case URL_KEY:
 			if (old_tuple == NULL || 0 != strcmp(new_tuple->value->cstring, old_tuple->value->cstring)) {
@@ -169,6 +168,7 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
 static void app_timer_callback(void *data) 
 {  	
   APP_LOG(APP_LOG_LEVEL_DEBUG, "app_timer_callback: %lu", sync_update_count);			
+	
 	if (sync_update_count > last_sync_update_count) {
 		sync_update_color = (sync_update_color == GColorBlack ? GColorWhite : GColorBlack);							
 	} 
@@ -319,7 +319,8 @@ static void trl_window_unload(Window* window)
   list_for_each(ptr, &controller_list) {
      entry = list_entry(ptr, struct ControllerEntry, list);
      if (entry->window == window) {
-				controller_unload(entry->controller);
+				 if (entry->controller)
+					 controller_destroy(entry->controller), entry->controller = NULL;
      }
   }		
 }
@@ -350,21 +351,21 @@ static void splash_window_load(Window *window)
 	splash_controller = splash_controller_create(window, (ControllerHandlers) {
 		.did_load = controller_did_load,
 		.did_unload = controller_did_unload
-	});
+	});	
 	splash_controller_set_bitmap_from_resource(splash_controller, NMEA_REMOTE_SPLASH);
 	controller_load(splash_controller_get_controller(splash_controller));		
 }
 
 static void splash_window_unload(Window *window)
 {
-	controller_unload(splash_controller_get_controller(splash_controller));
-	controller_destroy(splash_controller_get_controller(splash_controller)), splash_controller = NULL;
-	window_destroy(splash_window), splash_window = NULL;			
+	if (splash_controller)
+		controller_destroy(splash_controller_get_controller(splash_controller)), splash_controller = NULL;
 }
 
 static void load_splash_window()
 {
-  splash_window = window_create();
+	if (!splash_window)
+		splash_window = window_create();
   window_set_background_color(splash_window, GColorBlack);	
   window_set_fullscreen(splash_window, true);
   window_set_window_handlers(splash_window, (WindowHandlers) {

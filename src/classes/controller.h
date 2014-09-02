@@ -23,6 +23,7 @@ typedef struct Controller  {
 	Window* window;
 	Layer* update_layer;
 	GColor* update_color;
+	bool loaded;
 } Controller;
 
 
