@@ -2,16 +2,13 @@
 #include "controller.h"
 
 ControllerVTable* controller_get_vtable(Controller *controller) {
-	return (ControllerVTable*)controller->vtable;
+	return &controller->vtable;
 }
 
 void __controller_init(Controller* controller, Window* window, ControllerHandlers handlers, ControllerVTable vtable) 
 {
 	memset(controller, 0, sizeof(Controller));
-	ControllerVTable *vtable_ptr = malloc(sizeof(ControllerVTable));
-	memset(vtable_ptr, 0, sizeof(ControllerVTable));
-	memcpy(vtable_ptr, &vtable, sizeof(ControllerVTable));
-	controller->vtable = vtable_ptr;
+	controller->vtable = vtable;
 	controller->handlers = handlers;
 	controller->window = window;
 }

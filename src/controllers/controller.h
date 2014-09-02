@@ -5,27 +5,26 @@
 
 struct Controller;
 
-typedef struct 
-{
+typedef struct {
 	void (*did_load)(struct Controller*);
 	void (*did_unload)(struct Controller*);	
 } ControllerHandlers;
 
-typedef struct Controller 
-{
-	void* vtable;
+typedef struct {
+	void (*load)(struct Controller*);
+	void (*unload)(struct Controller*);	
+	void (*redraw)(struct Controller*);
+	void (*destroy)(struct Controller*);			
+} ControllerVTable;
+
+typedef struct Controller  {
+	ControllerVTable vtable;
 	ControllerHandlers handlers;	
 	Window* window;
 	Layer* update_layer;
 	GColor* update_color;
 } Controller;
 
-typedef struct {
-	void (*load)(Controller*);
-	void (*unload)(Controller*);	
-	void (*redraw)(Controller*);
-	void (*destroy)(Controller*);			
-} ControllerVTable;
 
 void __controller_init(Controller* controller, Window* window, ControllerHandlers handlers, ControllerVTable vtable);
 void controller_load(Controller*);

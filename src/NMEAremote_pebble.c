@@ -33,7 +33,7 @@ static void connect_failed_timer_callback(void *data)
 	if (splash_controller) {
 		splash_controller_set_info_text(splash_controller, "FAILURE");			
 		splash_controller_set_updating(splash_controller, false);	
-	}
+	}	
 }
 
 static void connect_success_timer_callback(void *data)
@@ -46,8 +46,11 @@ static void connect_success_timer_callback(void *data)
 			window_stack_push(entry->window, true);			
 		}
 		window_stack_remove(splash_window, false);	
-		window_destroy(splash_window), splash_window = NULL;				
+		window_destroy(splash_window), splash_window = NULL;						
 	}
+	// Save URL
+	if (strlen(values.url)) 
+		persist_write_string(URL_KEY, values.url);			
 }
 
 static void sync_error_callback(DictionaryResult dict_error, AppMessageResult app_message_error, void *context) 
@@ -316,7 +319,7 @@ static void trl_window_unload(Window* window)
   list_for_each(ptr, &controller_list) {
      entry = list_entry(ptr, struct ControllerEntry, list);
      if (entry->window == window) {
-			 controller_unload(entry->controller), entry->controller = NULL;
+				controller_unload(entry->controller);
      }
   }		
 }
@@ -435,10 +438,6 @@ static void init()
 
 static void deinit() 
 {	
-	// Save URL
-	if (strlen(values.url))
-		persist_write_string(URL_KEY, values.url);		
-
 	struct list_head *ptr, *tmp;	
 	struct ControllerEntry *entry;		
   list_for_each_safe(ptr, tmp, &controller_list) {
