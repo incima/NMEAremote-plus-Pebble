@@ -6,14 +6,13 @@
 #include "controller.h"
 #include "trl_top_view.h"
 #include "trl_bottom_view.h"
+#include "trl_switch_view.h"
 
 
 typedef struct {
 	Controller controller;
-	struct list_head top_view_list;	
-	ViewListEntry *curr_top_view;
-	struct list_head bottom_view_list;	
-	ViewListEntry *curr_bottom_view;	
+	TRLSwitchView *top_switch_view;
+	TRLSwitchView *bottom_switch_view;	
 	Layer *circle_layer;	
 } TRLController;
 

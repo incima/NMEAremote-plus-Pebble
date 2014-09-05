@@ -46,6 +46,13 @@ void trl_top_view_unload(View *view)
 	layer_destroy(top_view->base.root_layer), top_view->base.root_layer = NULL;				
 }
 
+void trl_top_view_destroy(View *view)
+{
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLTopView trl_top_view_destroy");		
+	TRLTopView *top_view = trl_top_view_from_view(view);				
+	free(top_view);
+}
+
 TRLTopView* trl_top_view_create(char* title, char *value)
 {
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLTopView trl_top_view_create");		
@@ -54,18 +61,13 @@ TRLTopView* trl_top_view_create(char* title, char *value)
 	memset(top_view, 0, sizeof(TRLTopView));
 	__view_init(&top_view->base, (ViewVTable) {
 		.load = trl_top_view_load,
-		.unload = trl_top_view_unload
+		.unload = trl_top_view_unload,
+		.destroy = trl_top_view_destroy
 	});
 	top_view->title = title;
 	top_view->value = value;
 	return top_view;
 }
 
-void trl_top_view_destroy(TRLTopView *top_view)
-{
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLTopView trl_top_view_destroy");		
-		
-	view_unload(&top_view->base);
-	free(top_view);
-}
+
 

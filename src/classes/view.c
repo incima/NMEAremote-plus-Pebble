@@ -38,6 +38,15 @@ void view_unload(View* view)
 	view->loaded = false;	
 }
 
+void view_destroy(View* view) 
+{
+	ViewVTable *vtable = view_get_vtable(view);
+	if (view->loaded)
+		view_unload(view);
+	if (vtable->destroy)
+		vtable->destroy(view);		
+}
+
 /**
  * ViewListEntry
  */

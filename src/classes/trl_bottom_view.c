@@ -85,6 +85,13 @@ void trl_bottom_view_unload(View *view)
   layer_destroy(bottom_view->base.root_layer), bottom_view->base.root_layer = NULL;	
 }
 
+void trl_bottom_view_destroy(View *view) 
+{
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLBottomView trl_bottom_view_destroy");	
+	TRLBottomView *bottom_view = trl_bottom_view_from_view(view);		
+	free(bottom_view);	
+}
+
 TRLBottomView* trl_bottom_view_create(char* left_title, char *left_value, char *right_title, char *right_value)
 {
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLBottomView trl_bottom_view_create");	
@@ -93,7 +100,8 @@ TRLBottomView* trl_bottom_view_create(char* left_title, char *left_value, char *
 	memset(bottom_view, 0, sizeof(TRLBottomView));
 	__view_init(&bottom_view->base, (ViewVTable) {
 		.load = trl_bottom_view_load,
-		.unload = trl_bottom_view_unload
+		.unload = trl_bottom_view_unload,
+		.destroy = trl_bottom_view_destroy
 	});
 	bottom_view->left_title = left_title;
 	bottom_view->left_value = left_value;
@@ -102,11 +110,4 @@ TRLBottomView* trl_bottom_view_create(char* left_title, char *left_value, char *
 	return bottom_view;	
 }
 
-void trl_bottom_view_destroy(TRLBottomView *bottom_view) 
-{
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLBottomView trl_bottom_view_destroy");	
-		
-	view_unload(&bottom_view->base);
-	free(bottom_view);	
-}
 

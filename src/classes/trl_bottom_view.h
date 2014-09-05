@@ -18,7 +18,6 @@ typedef struct {
 
 
 TRLBottomView* trl_bottom_view_create(char* left_title, char *left_value, char *right_title, char *right_value);
-void trl_bottom_view_destroy(TRLBottomView *bottom_view);
 TRLBottomView* trl_bottom_view_from_view(View *view);
 
 #endif /* TRL_BOTTOM_VIEW_H_ */
