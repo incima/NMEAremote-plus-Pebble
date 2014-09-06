@@ -15,10 +15,16 @@ void trl_controller_load(Controller* controller)
 	// create top views		
 	trl_controller->top_switch_view = trl_switch_view_create(trl_controller->controller.window, GRect(0, 0, 144, 104));
 		
-	trl_switch_view_add_view(trl_controller->top_switch_view, &trl_top_view_create("SPEED", values.speed)->base);
-	trl_switch_view_add_view(trl_controller->top_switch_view, &trl_top_view_create("DEPTH", values.depth)->base);
-	trl_switch_view_add_view(trl_controller->top_switch_view, &trl_top_view_create("DTW", values.dtw)->base);
-	trl_switch_view_add_view(trl_controller->top_switch_view, &trl_top_view_create("TWD", values.twd)->base);
+	trl_switch_view_add_view(trl_controller->top_switch_view, 
+													&trl_top_view_create("SPEED", values.speed)->base);
+	trl_switch_view_add_view(trl_controller->top_switch_view, 
+													&trl_top_view_create("DEPTH", values.depth)->base);
+	trl_switch_view_add_view(trl_controller->top_switch_view, 
+													&trl_top_view_create("BTW", values.dtw)->base);
+	trl_switch_view_add_view(trl_controller->top_switch_view, 
+													&trl_top_view_create("DTW", values.dtw)->base);	
+	trl_switch_view_add_view(trl_controller->top_switch_view, 
+													&trl_top_view_create("TWD", values.twd)->base);
 	trl_switch_view_next(trl_controller->top_switch_view, false);
 	
   layer_add_child(window_layer, view_get_root_layer(&trl_controller->top_switch_view->base));
@@ -26,7 +32,17 @@ void trl_controller_load(Controller* controller)
 	// create bottom views
 	trl_controller->bottom_switch_view = trl_switch_view_create(trl_controller->controller.window, GRect(0, 104, 144, 64));
 	
-	trl_switch_view_add_view(trl_controller->bottom_switch_view, &trl_bottom_view_create("HDG", values.hdg, "AWA", values.awa)->base);	
+	trl_switch_view_add_view(trl_controller->bottom_switch_view, 
+													&trl_bottom_view_create("HDG", values.hdg, "AWA", values.awa)->base);	
+	trl_switch_view_add_view(trl_controller->bottom_switch_view, 
+													&trl_bottom_view_create("DTW", values.dtw, "TTG", values.ttg)->base);											
+	trl_switch_view_add_view(trl_controller->bottom_switch_view, 
+													&trl_bottom_view_create("COG", values.cog, "XTE", values.xte)->base);	
+	trl_switch_view_add_view(trl_controller->bottom_switch_view, 
+													&trl_bottom_view_create("SOG", values.sog, "TTG", values.ttg)->base);	
+	trl_switch_view_add_view(trl_controller->bottom_switch_view, 
+													&trl_bottom_view_create("TWS", values.tws, "BFT", values.bft)->base);	
+
 	trl_switch_view_next(trl_controller->bottom_switch_view, false);	
 	
   layer_add_child(window_layer, view_get_root_layer(&trl_controller->bottom_switch_view->base));		
@@ -40,30 +56,42 @@ void trl_controller_unload(Controller* controller)
 	view_unload(&trl_controller->bottom_switch_view->base);	
 }
 
-void trl_controller_redaw(Controller* controller)
-{
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLController trl_controller_redraw");		
-	TRLController *trl_controller = controller_get_trl_controller(controller);		
-}
-
 static TRLController* trl_controller;
 
 void trl_controller_click_handler_prev_value(ClickRecognizerRef recognizer, Window *window)
 {
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLController trl_controller_click_handler_prev_value");
-	trl_switch_view_prev(trl_controller->top_switch_view, true);
+	switch (trl_controller->control_state) {
+		case TRLControlStateTop:
+			trl_switch_view_prev(trl_controller->top_switch_view, true);		
+			break;
+		case TRLControlStateBottom:
+			trl_switch_view_prev(trl_controller->bottom_switch_view, true);				
+			break;
+		default:
+			break;
+	}
 }
 
 void trl_controller_click_handler_next_top_value(ClickRecognizerRef recognizer, Window *window)
 {
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLController trl_controller_click_handler_next_top_value");			
 	trl_switch_view_next(trl_controller->top_switch_view, true);
+	trl_controller->control_state = TRLControlStateTop;	
+}	
+
+void trl_controller_click_handler_next_bottom_value(ClickRecognizerRef recognizer, Window *window)
+{
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLController trl_controller_click_handler_next_bottom_value");			
+	trl_switch_view_next(trl_controller->bottom_switch_view, true);
+	trl_controller->control_state = TRLControlStateBottom;	
 }	
 
 void trl_controller_click_config_provider(Window *window) 
 {
   window_single_click_subscribe(BUTTON_ID_BACK, (ClickHandler)trl_controller_click_handler_prev_value);	
   window_single_click_subscribe(BUTTON_ID_UP, (ClickHandler)trl_controller_click_handler_next_top_value);
+  window_single_click_subscribe(BUTTON_ID_DOWN, (ClickHandler)trl_controller_click_handler_next_bottom_value);	
 }
 
 void trl_controller_destroy(Controller* controller) 
@@ -80,7 +108,6 @@ TRLController* trl_controller_create(Window* window, ControllerHandlers handlers
 	__controller_init(&trl_controller->controller, window, handlers, (ControllerVTable) {
 		.load = trl_controller_load,
 		.unload = trl_controller_unload,
-		.redraw = trl_controller_redaw,
 		.destroy = trl_controller_destroy
 	});	
   window_set_click_config_provider(window, (ClickConfigProvider)trl_controller_click_config_provider);		

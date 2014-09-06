@@ -1,6 +1,7 @@
 #include <pebble.h>
 #include "common.h"
 #include "list.h"
+#include "classes/fonts.h"
 #include "classes/trl_controller.h"
 #include "classes/splash_controller.h"
 
@@ -396,8 +397,10 @@ static void connect_to_url()
 
 static void init() 
 {	
-	INIT_LIST_HEAD(&controller_list);	
+	fonts_load();
 	
+	INIT_LIST_HEAD(&controller_list);	
+		
 	load_splash_window();	
 	window_stack_push(splash_window, true);	
 	
@@ -456,6 +459,8 @@ static void deinit()
 		window_destroy(splash_window), splash_window = NULL;
 	
   app_sync_deinit(&sync);	
+	
+	fonts_unload();
 }
 
 int main(void) 

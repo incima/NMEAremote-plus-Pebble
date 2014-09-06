@@ -1,5 +1,6 @@
-#include "common.h"
 #include "splash_controller.h"
+#include "common.h"
+#include "fonts.h"
 
 static void splash_circle_layer_update_proc(Layer *layer, GContext *context)
 {
@@ -41,7 +42,7 @@ void splash_controller_load(Controller* controller)
   splash_controller->info_layer = text_layer_create(GRect(0, ypos, 144, 12));
   text_layer_set_text_color(splash_controller->info_layer, GColorWhite);
   text_layer_set_background_color(splash_controller->info_layer, GColorClear);
-  //text_layer_set_font(splash_controller->info_layer, fonts_load_custom_font(resource_get_handle(FONT_OPENSANS_12_TEXT)));
+  text_layer_set_font(splash_controller->info_layer, fonts_get(REGULAR_12_TEXT));
   text_layer_set_text_alignment(splash_controller->info_layer, GTextAlignmentCenter);
 	text_layer_set_text(splash_controller->info_layer, "");	
 	layer_add_child(window_layer, text_layer_get_layer(splash_controller->info_layer));			

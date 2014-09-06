@@ -79,11 +79,14 @@ static void destroy_property_animation(PropertyAnimation **prop_animation) {
 }
 
 void trl_switch_view_curr_animation_started(Animation *animation, ViewListEntry *prev_entry) {
-	
+	TRLSwitchView *switch_view = trl_switch_view_from_view(prev_entry->view->parent_view);
+	Layer *window_root_layer = window_get_root_layer(switch_view->window);
+	layer_add_child(window_root_layer, view_get_root_layer(prev_entry->view));
 }
 
 void trl_switch_view_curr_animation_stopped(Animation *animation, bool finished, ViewListEntry *prev_entry) {
 	layer_remove_from_parent(view_get_root_layer(prev_entry->view));
+	view_unload(prev_entry->view);
 }
 	
 void trl_switch_view_next_animation_started(Animation *animation, ViewListEntry *next_entry) {
@@ -99,7 +102,8 @@ void trl_switch_view_next_animation_stopped(Animation *animation, bool finished,
 
 void trl_switch_view_next(TRLSwitchView *switch_view, bool animate)
 {
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLController trl_controller_click_handler_next_top_value");			
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLSwitchView trl_switch_view_next");			
+	
 	destroy_property_animation(&switch_view->curr_prop_animation);	
 	destroy_property_animation(&switch_view->next_prop_animation);	
 		
@@ -120,9 +124,7 @@ void trl_switch_view_next(TRLSwitchView *switch_view, bool animate)
 	    .started = (AnimationStartedHandler)trl_switch_view_curr_animation_started,		
 	    .stopped = (AnimationStoppedHandler)trl_switch_view_curr_animation_stopped,
 	  }, curr_entry);
-		
-		animation_schedule((Animation*)switch_view->curr_prop_animation);		
-	
+			
 		if (curr_entry->list.next != &switch_view->view_list)
 			next_entry = list_entry(curr_entry->list.next, ViewListEntry, list);
 		else
@@ -147,13 +149,18 @@ void trl_switch_view_next(TRLSwitchView *switch_view, bool animate)
 	    .started = (AnimationStartedHandler)trl_switch_view_next_animation_started,
 	    .stopped = (AnimationStoppedHandler)trl_switch_view_next_animation_stopped,
 	  }, next_entry);
-	
-		animation_schedule((Animation*)switch_view->next_prop_animation);			
 	}
+	
+	if (switch_view->curr_prop_animation)
+		animation_schedule((Animation*)switch_view->curr_prop_animation);	
+	if (switch_view->next_prop_animation)
+		animation_schedule((Animation*)switch_view->next_prop_animation);			
 }
 
 void trl_switch_view_prev(TRLSwitchView *switch_view, bool animate)
 {
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLSwitchView trl_switch_view_prev");			
+		
 	destroy_property_animation(&switch_view->curr_prop_animation);	
 	destroy_property_animation(&switch_view->next_prop_animation);	
 		
@@ -174,9 +181,7 @@ void trl_switch_view_prev(TRLSwitchView *switch_view, bool animate)
 	    .started = (AnimationStartedHandler)trl_switch_view_curr_animation_started,		
 	    .stopped = (AnimationStoppedHandler)trl_switch_view_curr_animation_stopped,
 	  }, curr_entry);
-	
-		animation_schedule((Animation*)switch_view->curr_prop_animation);	
-				
+						
 		if (curr_entry->list.prev != &switch_view->view_list)
 			next_entry = list_entry(curr_entry->list.prev, ViewListEntry, list);
 		else
@@ -185,7 +190,7 @@ void trl_switch_view_prev(TRLSwitchView *switch_view, bool animate)
 	else if (switch_view->view_list.prev) {
 		next_entry = list_entry(switch_view->view_list.prev, ViewListEntry, list);
 	}
-	
+			
 	if (next_entry) {
 		Layer *next_top_layer = view_get_root_layer(next_entry->view);
 
@@ -193,16 +198,19 @@ void trl_switch_view_prev(TRLSwitchView *switch_view, bool animate)
 		next_from_frame.origin.x = -144; 		
 		GRect next_to_frame = next_from_frame; 
 		next_to_frame.origin.x = 0; 	
-		
+
 		switch_view->next_prop_animation = property_animation_create_layer_frame(next_top_layer, &next_from_frame, &next_to_frame);
 		animation_set_duration((Animation*)switch_view->next_prop_animation, 400);
 		animation_set_curve((Animation*)switch_view->next_prop_animation, AnimationCurveEaseIn);	  	
 		animation_set_handlers((Animation*)switch_view->next_prop_animation, (AnimationHandlers) {
-	    .started = (AnimationStartedHandler)trl_switch_view_next_animation_started,		
+	    .started = (AnimationStartedHandler)trl_switch_view_next_animation_started,
 	    .stopped = (AnimationStoppedHandler)trl_switch_view_next_animation_stopped,
-	  }, next_entry);
-	
-		animation_schedule((Animation*)switch_view->next_prop_animation);	
+	  }, next_entry);					
 	}
+
+	if (switch_view->curr_prop_animation)
+		animation_schedule((Animation*)switch_view->curr_prop_animation);	
+	if (switch_view->next_prop_animation)
+		animation_schedule((Animation*)switch_view->next_prop_animation);		
 }
 

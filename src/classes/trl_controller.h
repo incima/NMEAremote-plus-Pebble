@@ -8,9 +8,15 @@
 #include "trl_bottom_view.h"
 #include "trl_switch_view.h"
 
+typedef enum {
+	TRLControlStateNone=0,
+	TRLControlStateTop,
+	TRLControlStateBottom	
+} TRLControlState;
 
 typedef struct {
 	Controller controller;
+	TRLControlState control_state;
 	TRLSwitchView *top_switch_view;
 	TRLSwitchView *bottom_switch_view;	
 	Layer *circle_layer;	
