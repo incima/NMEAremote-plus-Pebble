@@ -36,7 +36,7 @@
 		    "file": "fonts/OpenSans-ExtraBold.ttf"
 			},
 		  {
-				"characterRegex": "[A-Z\\s]",
+				"characterRegex": "[A-Za-z0-9\\s\\.\\:°-]",
 		    "type": "font",
 		    "name": "FONT_OPENSANS_LIGHT_24_TEXT",
 		    "file": "fonts/OpenSans-Light.ttf"
@@ -48,13 +48,13 @@
 		    "file": "fonts/OpenSans-Bold.ttf"
 		  },
 		  {
-				"characterRegex": "[A-Z\\s]",
+				"characterRegex": "[A-Za-z0-9\\s\\.\\:°-]",
 		    "type": "font",
 		    "name": "FONT_OPENSANS_EXTRA_24_TEXT",
 		    "file": "fonts/OpenSans-ExtraBold.ttf"
 			},
 		  {
-				"characterRegex": "[A-Z\\s]",
+				"characterRegex": "[A-Za-z0-9\\s\\.\\:°-]",
 		    "type": "font",
 		    "name": "FONT_OPENSANS_12_TEXT",
 		    "file": "fonts/OpenSans-Regular.ttf"

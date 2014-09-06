@@ -3,6 +3,9 @@
 
 #include <pebble.h>
 
+#undef APP_LOG
+#define APP_LOG(...)
+
 #define FONT_OPENSANS_EXTRA_48_NUMBERS RESOURCE_ID_FONT_OPENSANS_EXTRA_52_NUMBERS
 #define FONT_OPENSANS_LIGHT_24_TEXT RESOURCE_ID_FONT_OPENSANS_LIGHT_24_TEXT
 #define FONT_OPENSANS_BOLD_24_NUMBERS RESOURCE_ID_FONT_OPENSANS_BOLD_24_NUMBERS
@@ -76,6 +79,9 @@ typedef struct {
 	time_t target_speed_percent_ts;
 	time_t startime;
 	time_t startime_ts;
+	char current_time[8];
+	char current_date[16];	
+	time_t current_time_ts;
 	char url[124];
 	time_t url_ts;
 } NMEAValues;

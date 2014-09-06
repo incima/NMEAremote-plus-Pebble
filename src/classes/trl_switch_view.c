@@ -1,5 +1,7 @@
 #include "trl_switch_view.h"
 
+#define ANIMATION_TIMING 250
+
 TRLSwitchView* trl_switch_view_from_view(View *view)
 {
 	return container_of(view, TRLSwitchView, base);
@@ -118,7 +120,7 @@ void trl_switch_view_next(TRLSwitchView *switch_view, bool animate)
 		GRect curr_to_frame = curr_from_frame;
 		curr_to_frame.origin.x = -144;
 		switch_view->curr_prop_animation = property_animation_create_layer_frame(curr_top_layer, &curr_from_frame, &curr_to_frame);
-		animation_set_duration((Animation*)switch_view->curr_prop_animation, 400);
+		animation_set_duration((Animation*)switch_view->curr_prop_animation, ANIMATION_TIMING);
 		animation_set_curve((Animation*)switch_view->curr_prop_animation, AnimationCurveEaseIn);
 		animation_set_handlers((Animation*)switch_view->curr_prop_animation, (AnimationHandlers) {
 	    .started = (AnimationStartedHandler)trl_switch_view_curr_animation_started,		
@@ -143,7 +145,7 @@ void trl_switch_view_next(TRLSwitchView *switch_view, bool animate)
 		next_to_frame.origin.x = 0; 	
 	
 		switch_view->next_prop_animation = property_animation_create_layer_frame(next_top_layer, &next_from_frame, &next_to_frame);
-		animation_set_duration((Animation*)switch_view->next_prop_animation, 400);
+		animation_set_duration((Animation*)switch_view->next_prop_animation, ANIMATION_TIMING);
 		animation_set_curve((Animation*)switch_view->next_prop_animation, AnimationCurveEaseIn);	  			
 	  animation_set_handlers((Animation*)switch_view->next_prop_animation, (AnimationHandlers) {
 	    .started = (AnimationStartedHandler)trl_switch_view_next_animation_started,
@@ -175,7 +177,7 @@ void trl_switch_view_prev(TRLSwitchView *switch_view, bool animate)
 		GRect curr_to_frame = curr_from_frame;
 		curr_to_frame.origin.x = 144;
 		switch_view->curr_prop_animation = property_animation_create_layer_frame(curr_top_layer, &curr_from_frame, &curr_to_frame);
-		animation_set_duration((Animation*)switch_view->curr_prop_animation, 400);
+		animation_set_duration((Animation*)switch_view->curr_prop_animation, ANIMATION_TIMING);
 		animation_set_curve((Animation*)switch_view->curr_prop_animation, AnimationCurveEaseIn);	
 		animation_set_handlers((Animation*)switch_view->curr_prop_animation, (AnimationHandlers) {
 	    .started = (AnimationStartedHandler)trl_switch_view_curr_animation_started,		
@@ -200,7 +202,7 @@ void trl_switch_view_prev(TRLSwitchView *switch_view, bool animate)
 		next_to_frame.origin.x = 0; 	
 
 		switch_view->next_prop_animation = property_animation_create_layer_frame(next_top_layer, &next_from_frame, &next_to_frame);
-		animation_set_duration((Animation*)switch_view->next_prop_animation, 400);
+		animation_set_duration((Animation*)switch_view->next_prop_animation, ANIMATION_TIMING);
 		animation_set_curve((Animation*)switch_view->next_prop_animation, AnimationCurveEaseIn);	  	
 		animation_set_handlers((Animation*)switch_view->next_prop_animation, (AnimationHandlers) {
 	    .started = (AnimationStartedHandler)trl_switch_view_next_animation_started,

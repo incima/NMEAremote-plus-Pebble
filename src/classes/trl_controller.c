@@ -20,11 +20,14 @@ void trl_controller_load(Controller* controller)
 	trl_switch_view_add_view(trl_controller->top_switch_view, 
 													&trl_top_view_create("DEPTH", values.depth)->base);
 	trl_switch_view_add_view(trl_controller->top_switch_view, 
-													&trl_top_view_create("BTW", values.dtw)->base);
+													&trl_top_view_create("BTW", values.btw)->base);
 	trl_switch_view_add_view(trl_controller->top_switch_view, 
 													&trl_top_view_create("DTW", values.dtw)->base);	
 	trl_switch_view_add_view(trl_controller->top_switch_view, 
 													&trl_top_view_create("TWD", values.twd)->base);
+	trl_switch_view_add_view(trl_controller->top_switch_view, 
+													&trl_top_view_create(values.current_date, values.current_time)->base);
+
 	trl_switch_view_next(trl_controller->top_switch_view, false);
 	
   layer_add_child(window_layer, view_get_root_layer(&trl_controller->top_switch_view->base));

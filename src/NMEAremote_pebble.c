@@ -178,6 +178,14 @@ static void app_timer_callback(void *data)
 	}
 	
 	time_t now = time(NULL);
+	
+	// update current_time
+	values.current_time_ts = now;
+	struct tm *tm = localtime(&values.current_time_ts);
+	strftime(values.current_time, sizeof(values.current_time), "%R", tm);
+	strftime(values.current_date, sizeof(values.current_date), "%e %b %Y", tm);		
+	
+	// check values for actuality
 	if (now - values.speed_ts > 10)
 		memcpy(values.speed, KNOTS_DEFAULT_VALUE, MIN(strlen(KNOTS_DEFAULT_VALUE)+1, sizeof(values.speed)));	
 	if (now - values.depth_ts > 10)		
