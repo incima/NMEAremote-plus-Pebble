@@ -11,13 +11,14 @@ void timer_controller_load(Controller *controller)
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "TimerController %s", __func__);
 	
 	TimerController *timer_controller = timer_controller_from_controller(controller);
-	
-	timer_controller->timer_view = timer_view_create();
+
+	Window *window = controller_get_window(controller);
+	Layer *window_root_layer = window_get_root_layer(window);		
+
+	timer_controller->timer_view = timer_view_create(layer_get_bounds(window_root_layer));
 	
 	view_load(timer_view_get_view(timer_controller->timer_view));
-	
-	Window *window = controller_get_window(controller);
-	Layer *window_root_layer = window_get_root_layer(window);
+
 	layer_add_child(window_root_layer, view_get_root_layer(timer_view_get_view(timer_controller->timer_view)));
 	
 	controller_load_update_layer(controller);	

@@ -46,7 +46,7 @@ function formatTime(v) {
 	var div_min = div_days % (60 * 60);
 	var m = Math.floor(div_min / 60);
 	var div_sec = div_min % 60;
-	var sec = Math.ceil(div_sec);
+	var s = Math.ceil(div_sec);
 	
 	var time_str = "";
 	if (d > 0) {
@@ -118,7 +118,7 @@ function(e) {
 						 var bft = formatBft(response.BFT);
 						 var target_speed = formatKnots(response.TARGET_SPEED);
 						 var target_speed_percent = formatPercent(response.TARGET_SPEED_PERCENT);					
-						 var starttime_interval1970 = formatPercent(response.STARTTIME_INTERVAL1970);			
+						 var starttime_interval1970 = "" + response.STARTTIME_INTERVAL1970.toFixed(0);			
 						 								 	 						 
 			       Pebble.sendAppMessage({"SPEED":speed, 
 						 											 	"DEPTH":depth,

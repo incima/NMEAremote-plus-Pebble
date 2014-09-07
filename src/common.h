@@ -77,8 +77,9 @@ typedef struct {
 	time_t target_speed_ts;
 	char target_speed_percent[8];		
 	time_t target_speed_percent_ts;
-	time_t startime;
-	time_t startime_ts;
+	time_t starttime;
+	char starttime_str[8];
+	time_t starttime_ts;
 	char current_time[8];
 	char current_date[16];	
 	time_t current_time_ts;

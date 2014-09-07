@@ -1,4 +1,5 @@
 #include <pebble.h>
+#include <math.h>
 #include "common.h"
 #include "list.h"
 #include "classes/fonts.h"
@@ -143,11 +144,14 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
 			values.target_speed_percent_ts = time(NULL);
 			success = new_tuple->length > 1;			
 			break;				
-		case STARTTIME_INTERVAL1970_KEY:		
-			values.startime = (time_t)new_tuple->value->uint32;
-			values.startime_ts = time(NULL);
-			success = values.startime > 0;			
+		case STARTTIME_INTERVAL1970_KEY: {
+			char temp[16];
+			memcpy(temp, new_tuple->value->cstring, MIN(new_tuple->length, sizeof(temp)));					
+			values.starttime = (time_t)atol(temp);
+			values.starttime_ts = time(NULL);
+			success = values.starttime > 0;			
 			break;
+		}
 		default:
 			success = false;
 			break;	
@@ -160,6 +164,57 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
 			app_timer_register(1250, connect_success_timer_callback, NULL);			
 		}	
 	}
+}
+
+size_t format_seconds(time_t v, char *time_str, size_t len) 
+{
+	float d = floor(v / (60 * 60 * 24));
+	int div_days = v % (60 * 60 * 24);
+	float h = floor(div_days / (60 * 60));
+	int div_min = div_days % (60 * 60);
+	float m = floor(div_min / 60);
+	int div_sec = div_min % 60;
+	float s = ceil(div_sec);
+		
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "format_seconds: %u:%u:%u:%u", (unsigned int)d, (unsigned int)h, (unsigned int)m, (unsigned int)s);			
+	size_t c = 0;
+	
+	/*		
+	if (d > 0.f) {
+		if (d < 10.f) 
+			if (c+1 < len) time_str[c++] = '0';		
+		//c += snprintf(&time_str[c], len-c, "%u", (unsigned int)round(d));
+		if (c+1 < len) time_str[c++] = ':';
+		if (h < 10.f)
+			if (c+1 < len) time_str[c++] = '0';		
+		//c += snprintf(&time_str[c], len-c, "%u", (unsigned int)round(h));
+		return c;
+	} else if (h > 0.f) {
+		if (h < 10.f) 
+			if (c+1 < len) time_str[c++] = '0';		
+		//c += snprintf(&time_str[c], len-c, "%u", (unsigned int)round(h));
+		if (c+1 < len) time_str[c++] = ':';
+		if (m < 10.f)
+			if (c+1 < len) time_str[c++] = '0';		
+		//c += snprintf(&time_str[c], len-c, "%u", (unsigned int)round(m));
+		return c;
+	} else {
+		if (m < 10.f)
+			if (c+1 < len) time_str[c++] = '0';		
+		//c += snprintf(time_str + c, len-c, "%u", (unsigned int)round(m));
+		if (c+1 < len) time_str[c++] = ':';
+		if (s < 10.f)
+			if (c+1 < len) time_str[c++] = '0';
+		//c += snprintf(time_str + c, len-c, "%u", (unsigned int)round(s));
+		return c;
+	}	
+	*/
+	time_str[c++] = '0';
+	c += snprintf(time_str + c, len-c, "%u", (unsigned int)m);
+	time_str[c++] = ':';	
+	time_str[c++] = '0';		
+	c += snprintf(time_str + c, len-c, "%u", (unsigned int)s);			
+	return 0;
 }
 
 static void app_timer_callback(void *data) 
@@ -180,7 +235,15 @@ static void app_timer_callback(void *data)
 	struct tm *tm = localtime(&values.current_time_ts);
 	strftime(values.current_time, sizeof(values.current_time), "%R", tm);
 	strftime(values.current_date, sizeof(values.current_date), "%e %b %Y", tm);		
-	
+
+
+	// update starttime
+	if (values.starttime > 0) {
+		time_t seconds = values.starttime - values.current_time_ts;		
+  	APP_LOG(APP_LOG_LEVEL_DEBUG, "app_timer_callback: %li %li %li", values.starttime, values.current_time_ts, seconds);
+		format_seconds(seconds, values.starttime_str, sizeof(values.starttime_str));
+	}
+		
 	// check values for actuality
 	if (now - values.speed_ts > 10)
 		memcpy(values.speed, KNOTS_DEFAULT_VALUE, MIN(strlen(KNOTS_DEFAULT_VALUE)+1, sizeof(values.speed)));	
@@ -440,7 +503,7 @@ static void init()
 		TupletCString(TARGET_SPEED_KEY, ""),	
 		TupletCString(TARGET_SPEED_PERCENT_KEY, ""),	
 		TupletInteger(STARTTIME_INTERVAL1970_KEY, (time_t)0),
-		TupletCString(URL_KEY, "")				
+		TupletCString(URL_KEY, "http://192.168.1.13:8080/json")				
   };
   app_sync_init(&sync, sync_buffer, sizeof(sync_buffer), initial_values, ARRAY_LENGTH(initial_values),
       sync_tuple_changed_callback, sync_error_callback, NULL);
