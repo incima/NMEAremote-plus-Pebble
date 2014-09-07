@@ -3,6 +3,7 @@
 #include "list.h"
 #include "classes/fonts.h"
 #include "classes/trl_controller.h"
+#include "classes/timer_controller.h"
 #include "classes/splash_controller.h"
 
 #define SYNC_UPDATE_TIMEOUT 10
@@ -13,15 +14,10 @@ static unsigned long last_sync_update_count = 0;
 static unsigned long sync_update_count = 0;
 static Window *splash_window = NULL;
 static SplashController *splash_controller = NULL;
-typedef enum {
-	TRL_CONTROLLER=0,
-} ControllerID;
-struct ControllerEntry {
+typedef struct {
     struct list_head list;		
-		ControllerID controllerID;				
-		Window* window;
-		Controller* controller;
-};
+		Controller* controller;		
+} ControllerEntry;
 struct list_head controller_list;
 	
 NMEAValues values;
@@ -43,8 +39,8 @@ static void connect_success_timer_callback(void *data)
 	if (splash_controller) {				
 		if (!list_empty(&controller_list)) {
 			struct list_head *ptr = controller_list.next;	
-			struct ControllerEntry *entry = list_entry(ptr, struct ControllerEntry, list);	
-			window_stack_push(entry->window, true);			
+			ControllerEntry *entry = list_entry(ptr, ControllerEntry, list);	
+			window_stack_push(controller_get_window(entry->controller), true);			
 		}
 		window_stack_remove(splash_window, false);						
 	}
@@ -222,10 +218,10 @@ static void app_timer_callback(void *data)
 		controller_redraw(splash_controller_get_controller(splash_controller));									
 	else {															
 		struct list_head *ptr;	
-		struct ControllerEntry *entry;		
+		ControllerEntry *entry;		
 	  list_for_each(ptr, &controller_list) {
-	     entry = list_entry(ptr, struct ControllerEntry, list);
-	     if (entry->window == top_window) {
+	     entry = list_entry(ptr, ControllerEntry, list);
+	     if (controller_get_window(entry->controller) == top_window) {
 				 controller_redraw(entry->controller);												 
 				 controller_redraw_update_layer(entry->controller, sync_update_color);												 			 				 
 	     }			 
@@ -249,17 +245,17 @@ static void controller_did_unload(Controller* controller)
  Button events
  */
 
-static void click_handler_prev_controller(ClickRecognizerRef recognizer, Window *window) {
-	if(splash_window)
-		return;
-		
+static void click_handler_prev_controller(ClickRecognizerRef recognizer, Window *window) 
+{
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "click_handler_prev_controller");
+			
 	struct list_head *ptr;	
-	struct ControllerEntry *entry;		
+	ControllerEntry *entry;		
   list_for_each(ptr, &controller_list) {
-     entry = list_entry(ptr, struct ControllerEntry, list);
-     if (entry->window == window) {
+     entry = list_entry(ptr, ControllerEntry, list);
+     if (controller_get_window(entry->controller) == window) {
 			 if (ptr->prev != &controller_list) {
-				 window_stack_pop(entry->window);			 
+				 window_stack_pop(controller_get_window(entry->controller));			 
 				 return;
 			 }    
 		 }
@@ -267,17 +263,18 @@ static void click_handler_prev_controller(ClickRecognizerRef recognizer, Window 
 }
 
 static void click_handler_next_controller(ClickRecognizerRef recognizer, Window *window) {
-	if(splash_window)
-		return;
-	
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "click_handler_next_controller");
+		
 	struct list_head *ptr;	
-	struct ControllerEntry *entry;		
+	ControllerEntry *entry;		
   list_for_each(ptr, &controller_list) {
-     entry = list_entry(ptr, struct ControllerEntry, list);
-     if (entry->window == window) {
+     entry = list_entry(ptr, ControllerEntry, list);
+     if (controller_get_window(entry->controller) == window) {
 			 	if (ptr->next != &controller_list) {
-				 	struct ControllerEntry *next_entry = list_entry(ptr->next, struct ControllerEntry, list);			 
-				 	window_stack_push(next_entry->window, true);	
+				 	ControllerEntry *next_entry = list_entry(ptr->next, ControllerEntry, list);		
+					Window *window = controller_get_window(next_entry->controller);
+					if (window)
+						window_stack_push(window, true);	
 					return;
 				} 
 		 }
@@ -298,57 +295,53 @@ static void window_click_config_provider(Window *window) {
 }
 
 /**
-	TRL Controllers
+	Controllers
  */
 
-static void trl_window_load(Window* window) 
+static void window_load(Window* window) 
 {	 
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "window_load %p", window);
+		
 	struct list_head *ptr;	
-	struct ControllerEntry *entry;	
+	ControllerEntry *entry;	
   list_for_each(ptr, &controller_list) {
-     entry = list_entry(ptr, struct ControllerEntry, list);
-     if (entry->window == window) {
-			 	if (!entry->controller) {
-					TRLController *trl_controller = trl_controller_create(window, (ControllerHandlers) {
-			 			.did_load = controller_did_load,
-			 			.did_unload = controller_did_unload
-			 		});	
-			 		entry->controller = trl_controller_get_controller(trl_controller);
-			 	}
-			 	controller_load(entry->controller);
-			 	controller_load_update_layer(entry->controller);
+     entry = list_entry(ptr, ControllerEntry, list);
+     if (controller_get_window(entry->controller) == window) {
+				 if (entry->controller)
+			 		 controller_load(entry->controller);
      }
   }	
 }
 
-static void trl_window_unload(Window* window) 
+static void window_unload(Window* window) 
 {
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "window_unload %p", window);
+		
 	struct list_head *ptr;	
-	struct ControllerEntry *entry;		
+	ControllerEntry *entry;		
   list_for_each(ptr, &controller_list) {
-     entry = list_entry(ptr, struct ControllerEntry, list);
-     if (entry->window == window) {
+     entry = list_entry(ptr, ControllerEntry, list);
+     if (controller_get_window(entry->controller) == window) {
 				 if (entry->controller)
-					 controller_destroy(entry->controller), entry->controller = NULL;
+					 controller_unload(entry->controller);
      }
   }		
 }
 
-static void load_trl_window_for_controller_id(ControllerID controllerID)
+static void controller_entry_create(Controller *controller)
 {
-	struct ControllerEntry *entry = malloc(sizeof(struct ControllerEntry));
-	memset(entry, 0, sizeof(struct ControllerEntry));
-	entry->controllerID = controllerID;		
-  entry->window = window_create();
-	entry->controller = NULL;
-	list_add_tail(&entry->list, &controller_list);		
-  window_set_background_color(entry->window, GColorBlack);	
-  window_set_fullscreen(entry->window, true);
-  window_set_click_config_provider(entry->window, (ClickConfigProvider)window_click_config_provider);		
-  window_set_window_handlers(entry->window, (WindowHandlers) {
-    .load = trl_window_load,
-    .unload = trl_window_unload
+	ControllerEntry *entry = malloc(sizeof(ControllerEntry));
+	memset(entry, 0, sizeof(*entry));
+	entry->controller = controller;
+	Window *window = controller_get_window(entry->controller);
+  window_set_background_color(window, GColorBlack);	
+  window_set_fullscreen(window, true);
+  window_set_click_config_provider(window, (ClickConfigProvider)window_click_config_provider);		
+  window_set_window_handlers(window, (WindowHandlers) {
+    .load = window_load,
+    .unload = window_unload
   });
+	list_add_tail(&entry->list, &controller_list);			
 }
 
 /**
@@ -412,8 +405,15 @@ static void init()
 	load_splash_window();	
 	window_stack_push(splash_window, true);	
 	
-	load_trl_window_for_controller_id(TRL_CONTROLLER);
-								
+	controller_entry_create(trl_controller_get_controller(trl_controller_create(window_create(), (ControllerHandlers) {
+		.did_load = controller_did_load,
+		.did_unload = controller_did_unload
+	})));
+	controller_entry_create(timer_controller_get_controller(timer_controller_create(window_create(), (ControllerHandlers) {
+		.did_load = controller_did_load,
+		.did_unload = controller_did_unload
+	})));
+									
   const int inbound_size = app_message_inbox_size_maximum();
   const int outbound_size = app_message_outbox_size_maximum();
   app_message_open(inbound_size, outbound_size);
@@ -451,13 +451,14 @@ static void init()
 static void deinit() 
 {	
 	struct list_head *ptr, *tmp;	
-	struct ControllerEntry *entry;		
+	ControllerEntry *entry;		
   list_for_each_safe(ptr, tmp, &controller_list) {
-     entry = list_entry(ptr, struct ControllerEntry, list);
+     entry = list_entry(ptr, ControllerEntry, list);
+		 Window *window = controller_get_window(entry->controller);
 		 if (entry->controller)
 			 controller_destroy(entry->controller), entry->controller = NULL;
-		 if (entry->window)
-			 window_destroy(entry->window), entry->window = NULL;		
+		 if (window)
+			 window_destroy(window);
 		 list_del(ptr);
 		 free(entry);		 
 	}		

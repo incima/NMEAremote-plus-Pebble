@@ -1,5 +1,8 @@
 #include "trl_switch_view.h"
 
+#undef APP_LOG
+#define APP_LOG(...)
+
 #define ANIMATION_TIMING 250
 
 TRLSwitchView* trl_switch_view_from_view(View *view)

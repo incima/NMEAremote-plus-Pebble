@@ -9,7 +9,9 @@ TRLController* controller_get_trl_controller(Controller *controller) {
 void trl_controller_load(Controller* controller)
 {
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLController trl_controller_load");
+	
 	TRLController *trl_controller = controller_get_trl_controller(controller);
+	
   Layer *window_layer = window_get_root_layer(trl_controller->controller.window);
 		
 	// create top views		
@@ -48,7 +50,9 @@ void trl_controller_load(Controller* controller)
 
 	trl_switch_view_next(trl_controller->bottom_switch_view, false);	
 	
-  layer_add_child(window_layer, view_get_root_layer(&trl_controller->bottom_switch_view->base));		
+  layer_add_child(window_layer, view_get_root_layer(&trl_controller->bottom_switch_view->base));	
+	
+	controller_load_update_layer(controller);		
 }
 
 void trl_controller_unload(Controller* controller)
@@ -113,7 +117,7 @@ TRLController* trl_controller_create(Window* window, ControllerHandlers handlers
 		.unload = trl_controller_unload,
 		.destroy = trl_controller_destroy
 	});	
-  window_set_click_config_provider(window, (ClickConfigProvider)trl_controller_click_config_provider);		
+  //window_set_click_config_provider(window, (ClickConfigProvider)trl_controller_click_config_provider);		
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLController %p", trl_controller);		
 	return trl_controller;
 }
