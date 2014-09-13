@@ -156,6 +156,7 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
 			values.timezone_offset = (time_t)new_tuple->value->int32;
 			values.timezone_offset_ts = time(NULL);
 			success = true;
+			break;
 		default:
 			success = false;
 			break;	
