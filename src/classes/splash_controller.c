@@ -22,8 +22,8 @@ void splash_controller_load(Controller* controller)
 	Layer* window_layer = window_get_root_layer(splash_controller->controller.window);
 	GRect window_frame = layer_get_bounds(window_layer);
 	GRect window_bounds = layer_get_bounds(window_layer);
-  splash_controller->splash_layer = bitmap_layer_create(window_bounds);
-  layer_add_child(window_layer, bitmap_layer_get_layer(splash_controller->splash_layer));
+	splash_controller->splash_layer = bitmap_layer_create(window_bounds);
+	layer_add_child(window_layer, bitmap_layer_get_layer(splash_controller->splash_layer));
 	
 	uint32_t ypos = window_frame.origin.y + window_frame.size.h - 28;
 	splash_controller->circle_layer1 = layer_create(GRect(window_frame.origin.x + window_frame.size.w/2 - 12, 

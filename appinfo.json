@@ -25,6 +25,7 @@
 		"TARGET_SPEED": 13,
 		"TARGET_SPEED_PERCENT": 14,
 		"STARTTIME_INTERVAL1970": 15,
+		"TIMEZONE_OFFSET": 16,
 		"URL": 255  
 	},
   "resources": {

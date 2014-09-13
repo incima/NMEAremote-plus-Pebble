@@ -89,6 +89,11 @@ function formatPercent(v) {
 	return v.toFixed(1);	
 }
 
+function isNumber(obj) {
+	console.log("isNumber: " + obj + " " + parseFloat( obj ));
+  return (obj - parseFloat( obj ) + 1) >= 0;
+}
+
 Pebble.addEventListener("appmessage",
 function(e) {		
   console.log("Received message: " + JSON.stringify(e.payload));
@@ -118,8 +123,8 @@ function(e) {
 						 var bft = formatBft(response.BFT);
 						 var target_speed = formatKnots(response.TARGET_SPEED);
 						 var target_speed_percent = formatPercent(response.TARGET_SPEED_PERCENT);					
-						 var starttime_interval1970 = "" + response.STARTTIME_INTERVAL1970.toFixed(0);			
-						 								 	 						 
+						 var starttime_interval1970 = "" + ((isNumber(response.STARTTIME_INTERVAL1970)) ? response.STARTTIME_INTERVAL1970 : "");			
+						 var timezone_offset = (new Date).getTimezoneOffset() * 60;								 	 						 
 			       Pebble.sendAppMessage({"SPEED":speed, 
 						 											 	"DEPTH":depth,
 						 												"HDG":hdg, 
@@ -135,7 +140,8 @@ function(e) {
 																		"BFT":bft,																																	
 																		"TARGET_SPEED":target_speed,
 																		"TARGET_SPEED_PERCENT":target_speed_percent,
-																		"STARTTIME_INTERVAL1970": starttime_interval1970
+																		"STARTTIME_INTERVAL1970": starttime_interval1970,
+																		"TIMEZONE_OFFSET": timezone_offset
 																	});		   
 			     } 
 			   }

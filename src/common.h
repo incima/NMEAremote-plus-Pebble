@@ -42,6 +42,7 @@ enum NMEAkey {
 	TARGET_SPEED_KEY = 13,		
 	TARGET_SPEED_PERCENT_KEY = 14,	
 	STARTTIME_INTERVAL1970_KEY = 15,
+	TIMEZONE_OFFSET_KEY = 16,
 	/*Config*/
 	URL_KEY = 0xFF
 };
@@ -78,11 +79,13 @@ typedef struct {
 	char target_speed_percent[8];		
 	time_t target_speed_percent_ts;
 	time_t starttime;
-	char starttime_str[8];
+	char starttime_str[8];	
 	time_t starttime_ts;
 	char current_time[8];
 	char current_date[16];	
 	time_t current_time_ts;
+	time_t timezone_offset;
+	time_t timezone_offset_ts;	
 	char url[124];
 	time_t url_ts;
 } NMEAValues;
