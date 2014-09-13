@@ -48,7 +48,9 @@ TimerController* timer_controller_create(Window *window, ControllerHandlers hand
 	__controller_init(&timer_controller->base, window, handlers, (ControllerVTable) {
 		.load = timer_controller_load,
 		.unload = timer_controller_unload,		
-		.destroy = timer_controller_destroy		
+		.destroy = timer_controller_destroy,
+		.on_button_up = NULL,
+		.on_button_down = NULL		
 	});
 	return timer_controller;
 }

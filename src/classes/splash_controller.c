@@ -114,7 +114,9 @@ SplashController* splash_controller_create(Window* window, ControllerHandlers ha
 		.load = splash_controller_load,
 		.unload = splash_controller_unload,
 		.redraw = splash_controller_redraw,
-		.destroy = splash_controller_destroy
+		.destroy = splash_controller_destroy,
+		.on_button_up = NULL,
+		.on_button_down = NULL		
 	});
 	return splash_controller;
 }

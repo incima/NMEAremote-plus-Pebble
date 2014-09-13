@@ -51,6 +51,27 @@ void controller_redraw(Controller* controller)
 		vtable->redraw(controller);			
 }
 
+bool controller_on_button_up(Controller *controller, ClickRecognizerRef recognizer)
+{
+	if (!controller->loaded)
+		return false;
+	ControllerVTable *vtable = controller_get_vtable(controller);	
+	if (vtable->on_button_up)
+		return vtable->on_button_up(controller, recognizer);
+	return false;
+}
+
+bool controller_on_button_down(Controller *controller, ClickRecognizerRef recognizer)
+{
+	if (!controller->loaded)
+			return false;	
+	ControllerVTable *vtable = controller_get_vtable(controller);	
+	if (vtable->on_button_down)
+		return vtable->on_button_down(controller, recognizer);
+	return false;
+}
+
+
 static GColor controller_update_color;
 void controller_update_layer_update_proc(Layer *layer, GContext *context)
 {
@@ -81,3 +102,4 @@ Window* controller_get_window(Controller *controller)
 {
 	return controller->window;
 }
+

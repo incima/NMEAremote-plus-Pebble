@@ -294,15 +294,15 @@ static void controller_did_unload(Controller* controller)
  Button events
  */
 
-static void click_handler_prev_controller(ClickRecognizerRef recognizer, Window *window) 
+static void window_prev_controller(Window *window) 
 {
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "click_handler_prev_controller");
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "window_prev_controller");
 			
 	struct list_head *ptr;	
 	ControllerEntry *entry;		
-  list_for_each(ptr, &controller_list) {
-     entry = list_entry(ptr, ControllerEntry, list);
-     if (controller_get_window(entry->controller) == window) {
+	list_for_each(ptr, &controller_list) {
+		entry = list_entry(ptr, ControllerEntry, list);
+		if (controller_get_window(entry->controller) == window) {
 			 if (ptr->prev != &controller_list) {
 				 window_stack_pop(controller_get_window(entry->controller));			 
 				 return;
@@ -311,36 +311,74 @@ static void click_handler_prev_controller(ClickRecognizerRef recognizer, Window 
 	 }
 }
 
-static void click_handler_next_controller(ClickRecognizerRef recognizer, Window *window) {
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "click_handler_next_controller");
+static void window_next_controller(Window *window) 
+{
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "window_next_controller");
 		
 	struct list_head *ptr;	
 	ControllerEntry *entry;		
-  list_for_each(ptr, &controller_list) {
-     entry = list_entry(ptr, ControllerEntry, list);
-     if (controller_get_window(entry->controller) == window) {
-			 	if (ptr->next != &controller_list) {
-				 	ControllerEntry *next_entry = list_entry(ptr->next, ControllerEntry, list);		
-					Window *window = controller_get_window(next_entry->controller);
-					if (window)
-						window_stack_push(window, true);	
-					return;
-				} 
-		 }
+	list_for_each(ptr, &controller_list) {
+		entry = list_entry(ptr, ControllerEntry, list);
+		if (controller_get_window(entry->controller) == window) {
+			if (ptr->next != &controller_list) {
+				ControllerEntry *next_entry = list_entry(ptr->next, ControllerEntry, list);		
+				Window *window = controller_get_window(next_entry->controller);
+				if (window)
+					window_stack_push(window, true);	
+				return;
+			} 
+		 }	
 	}
 }
-/*
-static void window_select_click_handler(ClickRecognizerRef recognizer, void *context) {
-	if(splash_window)
-		return;
 
-	Window *window = (Window *)context;
-	connect_to_url();
+
+static Controller* window_get_controller(Window *window)
+{
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "window_get_controller %p", window);
+	
+	struct list_head *ptr, *tmp;	
+	ControllerEntry *entry;		
+	list_for_each_safe(ptr, tmp, &controller_list) {
+	    entry = list_entry(ptr, ControllerEntry, list);	    
+		if (entry->controller && controller_get_window(entry->controller) == window) {			
+			ControllerEntry *entry = list_entry(ptr, ControllerEntry, list);
+			return entry->controller;				
+		} 
+	}
+	return NULL;
 }
-*/
-static void window_click_config_provider(Window *window) {
-  window_single_click_subscribe(BUTTON_ID_BACK, (ClickHandler)click_handler_prev_controller);	
-  window_single_click_subscribe(BUTTON_ID_SELECT, (ClickHandler)click_handler_next_controller);
+
+static bool handle_click = false;
+
+static void window_generic_click_up_handler(ClickRecognizerRef recognizer, Window *window) 
+{		
+	Controller *controller = window_get_controller(window);
+	ButtonId button_id = click_recognizer_get_button_id(recognizer);	
+	switch (button_id) {
+	case BUTTON_ID_BACK:
+		if (handle_click) {
+			window_prev_controller(window);
+			return;
+		} else if (controller) {
+			handle_click = !controller_on_button_up(controller, recognizer);
+		}
+		break;
+	case BUTTON_ID_SELECT:
+		window_next_controller(window);
+		handle_click = true;	
+		break;
+	default:		 		
+		handle_click = !controller_on_button_up(controller, recognizer);		
+		break;
+	}	
+}
+
+static void window_click_config_provider(Window *window) 
+{	
+	window_single_click_subscribe(BUTTON_ID_BACK, (ClickHandler)window_generic_click_up_handler);
+	window_single_click_subscribe(BUTTON_ID_UP, (ClickHandler)window_generic_click_up_handler);
+	window_single_click_subscribe(BUTTON_ID_DOWN, (ClickHandler)window_generic_click_up_handler);
+	window_single_click_subscribe(BUTTON_ID_SELECT, (ClickHandler)window_generic_click_up_handler);  
 }
 
 /**
@@ -349,32 +387,22 @@ static void window_click_config_provider(Window *window) {
 
 static void window_load(Window* window) 
 {	 
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "window_load %p", window);
-		
-	struct list_head *ptr;	
-	ControllerEntry *entry;	
-  list_for_each(ptr, &controller_list) {
-     entry = list_entry(ptr, ControllerEntry, list);
-     if (controller_get_window(entry->controller) == window) {
-				 if (entry->controller)
-			 		 controller_load(entry->controller);
-     }
-  }	
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "window_load %p", window);		
+	
+	Controller *controller = window_get_controller(window);
+	if (controller) {
+		controller_load(controller);
+	}
 }
 
 static void window_unload(Window* window) 
 {
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "window_unload %p", window);
-		
-	struct list_head *ptr;	
-	ControllerEntry *entry;		
-  list_for_each(ptr, &controller_list) {
-     entry = list_entry(ptr, ControllerEntry, list);
-     if (controller_get_window(entry->controller) == window) {
-				 if (entry->controller)
-					 controller_unload(entry->controller);
-     }
-  }		
+	
+	Controller *controller = window_get_controller(window);
+	if (controller) {
+		controller_unload(controller);
+	}
 }
 
 static void controller_entry_create(Controller *controller)
@@ -383,14 +411,14 @@ static void controller_entry_create(Controller *controller)
 	memset(entry, 0, sizeof(*entry));
 	entry->controller = controller;
 	Window *window = controller_get_window(entry->controller);
-  window_set_background_color(window, GColorBlack);	
-  window_set_fullscreen(window, true);
-  window_set_click_config_provider(window, (ClickConfigProvider)window_click_config_provider);		
-  window_set_window_handlers(window, (WindowHandlers) {
-    .load = window_load,
-    .unload = window_unload
-  });
-	list_add_tail(&entry->list, &controller_list);			
+	window_set_background_color(window, GColorBlack);	
+	window_set_fullscreen(window, true);		
+	window_set_window_handlers(window, (WindowHandlers) {
+		.load = window_load,
+		.unload = window_unload
+	});
+	list_add_tail(&entry->list, &controller_list);	
+	window_set_click_config_provider(window, (ClickConfigProvider)window_click_config_provider);	
 }
 
 /**
@@ -417,12 +445,12 @@ static void load_splash_window()
 {
 	if (!splash_window)
 		splash_window = window_create();
-  window_set_background_color(splash_window, GColorBlack);	
-  window_set_fullscreen(splash_window, true);
-  window_set_window_handlers(splash_window, (WindowHandlers) {
-    .load = splash_window_load,
-    .unload = splash_window_unload
-  });			
+	window_set_background_color(splash_window, GColorBlack);	
+	window_set_fullscreen(splash_window, true);
+	window_set_window_handlers(splash_window, (WindowHandlers) {
+		.load = splash_window_load,
+		.unload = splash_window_unload
+	});			
 }
 
 static void connect_to_url() 
@@ -502,7 +530,7 @@ static void deinit()
 {	
 	struct list_head *ptr, *tmp;	
 	ControllerEntry *entry;		
-  list_for_each_safe(ptr, tmp, &controller_list) {
+	list_for_each_safe(ptr, tmp, &controller_list) {
      entry = list_entry(ptr, ControllerEntry, list);
 		 Window *window = controller_get_window(entry->controller);
 		 if (entry->controller)

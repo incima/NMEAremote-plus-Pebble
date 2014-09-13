@@ -1,7 +1,7 @@
 #include "trl_switch_view.h"
 
-#undef APP_LOG
-#define APP_LOG(...)
+//#undef APP_LOG
+//#define APP_LOG(...)
 
 #define ANIMATION_TIMING 250
 
@@ -12,7 +12,7 @@ TRLSwitchView* trl_switch_view_from_view(View *view)
 
 void trl_switch_view_load(View *view)
 {
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLSwitchView trl_switch_view_load");		
+	//APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLSwitchView trl_switch_view_load");		
 		
 	TRLSwitchView *switch_view = trl_switch_view_from_view(view);
 	
@@ -28,7 +28,7 @@ void trl_switch_view_unload(View *view)
 	// destroy top views
 	struct list_head *ptr, *tmp;	
 	ViewListEntry *entry;
-  list_for_each_safe(ptr, tmp, &switch_view->view_list) {
+	list_for_each_safe(ptr, tmp, &switch_view->view_list) {
 		entry = list_entry(ptr, ViewListEntry, list);
 		list_del(ptr);	 
 		view_destroy(entry->view);		 
@@ -48,7 +48,7 @@ void trl_switch_view_destroy(View *view)
 
 TRLSwitchView* trl_switch_view_create(Window *window, GRect frame)
 {
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLSwitchView trl_switch_view_create");		
+	//APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLSwitchView trl_switch_view_create");		
 		
 	TRLSwitchView *switch_view = malloc(sizeof(TRLSwitchView));
 	memset(switch_view, 0, sizeof(*switch_view));
@@ -65,7 +65,7 @@ TRLSwitchView* trl_switch_view_create(Window *window, GRect frame)
 
 void trl_switch_view_add_view(TRLSwitchView *switch_view, View *view)
 {		
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLSwitchView trl_switch_view_add_view");		
+	//APP_LOG(APP_LOG_LEVEL_DEBUG, "TRLSwitchView trl_switch_view_add_view");		
 				
 	ViewListEntry *entry = view_list_entry_create(view);
 	entry->view->parent_view = &switch_view->base; 
@@ -116,19 +116,27 @@ void trl_switch_view_next(TRLSwitchView *switch_view, bool animate)
 	ViewListEntry *next_entry = NULL;	
 	
 	if (curr_entry) {
-		Layer *curr_top_layer = view_get_root_layer(curr_entry->view);
+		Layer *curr_layer = view_get_root_layer(curr_entry->view);
 	
-		GRect curr_from_frame = layer_get_frame(curr_top_layer);
+		GRect curr_from_frame = layer_get_frame(curr_layer);
 		curr_from_frame.origin.x = 0;
 		GRect curr_to_frame = curr_from_frame;
 		curr_to_frame.origin.x = -144;
-		switch_view->curr_prop_animation = property_animation_create_layer_frame(curr_top_layer, &curr_from_frame, &curr_to_frame);
-		animation_set_duration((Animation*)switch_view->curr_prop_animation, ANIMATION_TIMING);
-		animation_set_curve((Animation*)switch_view->curr_prop_animation, AnimationCurveEaseIn);
-		animation_set_handlers((Animation*)switch_view->curr_prop_animation, (AnimationHandlers) {
-	    .started = (AnimationStartedHandler)trl_switch_view_curr_animation_started,		
-	    .stopped = (AnimationStoppedHandler)trl_switch_view_curr_animation_stopped,
-	  }, curr_entry);
+		
+		if (animate) {
+			switch_view->curr_prop_animation = property_animation_create_layer_frame(curr_layer, &curr_from_frame, &curr_to_frame);
+			animation_set_duration((Animation*)switch_view->curr_prop_animation, ANIMATION_TIMING);
+			animation_set_curve((Animation*)switch_view->curr_prop_animation, AnimationCurveEaseIn);
+			animation_set_handlers((Animation*)switch_view->curr_prop_animation, (AnimationHandlers) {
+				.started = (AnimationStartedHandler)trl_switch_view_curr_animation_started,		
+				.stopped = (AnimationStoppedHandler)trl_switch_view_curr_animation_stopped,
+			}, curr_entry);
+			animation_schedule((Animation*)switch_view->curr_prop_animation);			
+		} else {
+			// remove and unload
+			layer_remove_from_parent(view_get_root_layer(curr_entry->view));
+			view_unload(curr_entry->view);			
+		}
 			
 		if (curr_entry->list.next != &switch_view->view_list)
 			next_entry = list_entry(curr_entry->list.next, ViewListEntry, list);
@@ -136,30 +144,34 @@ void trl_switch_view_next(TRLSwitchView *switch_view, bool animate)
 			next_entry = list_entry(switch_view->view_list.next, ViewListEntry, list);	
 	}
 	else if (switch_view->view_list.next) {
+		APP_LOG(APP_LOG_LEVEL_DEBUG, "next_entry");			
 		next_entry = list_entry(switch_view->view_list.next, ViewListEntry, list);
 	}
 	
 	if (next_entry) {
-		Layer *next_top_layer = view_get_root_layer(next_entry->view);
-	
-		GRect next_from_frame = layer_get_frame(next_top_layer);
+		Layer *next_layer = view_get_root_layer(next_entry->view);		
+		
+		GRect next_from_frame = layer_get_frame(next_layer);
 		next_from_frame.origin.x = 144;
 		GRect next_to_frame = next_from_frame; 
 		next_to_frame.origin.x = 0; 	
 	
-		switch_view->next_prop_animation = property_animation_create_layer_frame(next_top_layer, &next_from_frame, &next_to_frame);
-		animation_set_duration((Animation*)switch_view->next_prop_animation, ANIMATION_TIMING);
-		animation_set_curve((Animation*)switch_view->next_prop_animation, AnimationCurveEaseIn);	  			
-	  animation_set_handlers((Animation*)switch_view->next_prop_animation, (AnimationHandlers) {
-	    .started = (AnimationStartedHandler)trl_switch_view_next_animation_started,
-	    .stopped = (AnimationStoppedHandler)trl_switch_view_next_animation_stopped,
-	  }, next_entry);
-	}
-	
-	if (switch_view->curr_prop_animation)
-		animation_schedule((Animation*)switch_view->curr_prop_animation);	
-	if (switch_view->next_prop_animation)
-		animation_schedule((Animation*)switch_view->next_prop_animation);			
+		if (animate) {
+			switch_view->next_prop_animation = property_animation_create_layer_frame(next_layer, &next_from_frame, &next_to_frame);
+			animation_set_duration((Animation*)switch_view->next_prop_animation, ANIMATION_TIMING);
+			animation_set_curve((Animation*)switch_view->next_prop_animation, AnimationCurveEaseIn);	  			
+			animation_set_handlers((Animation*)switch_view->next_prop_animation, (AnimationHandlers) {
+				.started = (AnimationStartedHandler)trl_switch_view_next_animation_started,
+				.stopped = (AnimationStoppedHandler)trl_switch_view_next_animation_stopped,
+			}, next_entry);
+			animation_schedule((Animation*)switch_view->next_prop_animation);				
+		} else {								
+			Layer *window_root_layer = window_get_root_layer(switch_view->window);
+			layer_set_frame(next_layer, next_to_frame);				
+			layer_add_child(window_root_layer, next_layer);	
+			switch_view->curr_entry = next_entry;			
+		}
+	}				
 }
 
 void trl_switch_view_prev(TRLSwitchView *switch_view, bool animate)
@@ -170,52 +182,63 @@ void trl_switch_view_prev(TRLSwitchView *switch_view, bool animate)
 	destroy_property_animation(&switch_view->next_prop_animation);	
 		
 	ViewListEntry *curr_entry = switch_view->curr_entry;
-	ViewListEntry *next_entry = NULL;
+	ViewListEntry *prev_entry = NULL;
 
 	if (curr_entry) {
-		Layer *curr_top_layer = view_get_root_layer(curr_entry->view);
+		Layer *curr_layer = view_get_root_layer(curr_entry->view);
 		
-		GRect curr_from_frame = layer_get_frame(curr_top_layer);
+		GRect curr_from_frame = layer_get_frame(curr_layer);
 		curr_from_frame.origin.x = 0;	
 		GRect curr_to_frame = curr_from_frame;
 		curr_to_frame.origin.x = 144;
-		switch_view->curr_prop_animation = property_animation_create_layer_frame(curr_top_layer, &curr_from_frame, &curr_to_frame);
-		animation_set_duration((Animation*)switch_view->curr_prop_animation, ANIMATION_TIMING);
-		animation_set_curve((Animation*)switch_view->curr_prop_animation, AnimationCurveEaseIn);	
-		animation_set_handlers((Animation*)switch_view->curr_prop_animation, (AnimationHandlers) {
-	    .started = (AnimationStartedHandler)trl_switch_view_curr_animation_started,		
-	    .stopped = (AnimationStoppedHandler)trl_switch_view_curr_animation_stopped,
-	  }, curr_entry);
+		
+		if (animate) {
+			switch_view->curr_prop_animation = property_animation_create_layer_frame(curr_layer, &curr_from_frame, &curr_to_frame);
+			animation_set_duration((Animation*)switch_view->curr_prop_animation, ANIMATION_TIMING);
+			animation_set_curve((Animation*)switch_view->curr_prop_animation, AnimationCurveEaseIn);	
+			animation_set_handlers((Animation*)switch_view->curr_prop_animation, (AnimationHandlers) {
+				.started = (AnimationStartedHandler)trl_switch_view_curr_animation_started,		
+				.stopped = (AnimationStoppedHandler)trl_switch_view_curr_animation_stopped,
+			}, curr_entry);
+			animation_schedule((Animation*)switch_view->curr_prop_animation);				
+		} else {
+			// remove and unload
+			layer_remove_from_parent(view_get_root_layer(curr_entry->view));
+			view_unload(curr_entry->view);			
+		}
 						
 		if (curr_entry->list.prev != &switch_view->view_list)
-			next_entry = list_entry(curr_entry->list.prev, ViewListEntry, list);
+			prev_entry = list_entry(curr_entry->list.prev, ViewListEntry, list);
 		else
-			next_entry = list_entry(switch_view->view_list.prev, ViewListEntry, list);
+			prev_entry = list_entry(switch_view->view_list.prev, ViewListEntry, list);
 	}		
 	else if (switch_view->view_list.prev) {
-		next_entry = list_entry(switch_view->view_list.prev, ViewListEntry, list);
+		prev_entry = list_entry(switch_view->view_list.prev, ViewListEntry, list);
 	}
 			
-	if (next_entry) {
-		Layer *next_top_layer = view_get_root_layer(next_entry->view);
+	if (prev_entry) {
+		Layer *prev_layer = view_get_root_layer(prev_entry->view);
 
-		GRect next_from_frame = layer_get_frame(next_top_layer);
-		next_from_frame.origin.x = -144; 		
-		GRect next_to_frame = next_from_frame; 
-		next_to_frame.origin.x = 0; 	
+		GRect prev_from_frame = layer_get_frame(prev_layer);
+		prev_from_frame.origin.x = -144; 		
+		GRect prev_to_frame = prev_from_frame; 
+		prev_to_frame.origin.x = 0; 	
 
-		switch_view->next_prop_animation = property_animation_create_layer_frame(next_top_layer, &next_from_frame, &next_to_frame);
-		animation_set_duration((Animation*)switch_view->next_prop_animation, ANIMATION_TIMING);
-		animation_set_curve((Animation*)switch_view->next_prop_animation, AnimationCurveEaseIn);	  	
-		animation_set_handlers((Animation*)switch_view->next_prop_animation, (AnimationHandlers) {
-	    .started = (AnimationStartedHandler)trl_switch_view_next_animation_started,
-	    .stopped = (AnimationStoppedHandler)trl_switch_view_next_animation_stopped,
-	  }, next_entry);					
-	}
-
-	if (switch_view->curr_prop_animation)
-		animation_schedule((Animation*)switch_view->curr_prop_animation);	
-	if (switch_view->next_prop_animation)
-		animation_schedule((Animation*)switch_view->next_prop_animation);		
+		if (animate) {
+			switch_view->next_prop_animation = property_animation_create_layer_frame(prev_layer, &prev_from_frame, &prev_to_frame);
+			animation_set_duration((Animation*)switch_view->next_prop_animation, ANIMATION_TIMING);
+			animation_set_curve((Animation*)switch_view->next_prop_animation, AnimationCurveEaseIn);	  	
+			animation_set_handlers((Animation*)switch_view->next_prop_animation, (AnimationHandlers) {
+				.started = (AnimationStartedHandler)trl_switch_view_next_animation_started,
+				.stopped = (AnimationStoppedHandler)trl_switch_view_next_animation_stopped,
+			}, prev_entry);
+			animation_schedule((Animation*)switch_view->next_prop_animation);	
+		} else {
+			Layer *window_root_layer = window_get_root_layer(switch_view->window);
+			layer_set_frame(prev_layer, prev_to_frame);				
+			layer_add_child(window_root_layer, prev_layer);	
+			switch_view->curr_entry = prev_entry;	
+		}
+	}				
 }
 

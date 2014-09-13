@@ -3,8 +3,12 @@
 
 #include <pebble.h>
 
-//#undef APP_LOG
-//#define APP_LOG(...)
+#define RELEASE 1
+
+#if RELEASE
+#undef APP_LOG
+#define APP_LOG(...)
+#endif
 
 #define FONT_OPENSANS_EXTRA_48_NUMBERS RESOURCE_ID_FONT_OPENSANS_EXTRA_52_NUMBERS
 #define FONT_OPENSANS_LIGHT_24_TEXT RESOURCE_ID_FONT_OPENSANS_LIGHT_24_TEXT
