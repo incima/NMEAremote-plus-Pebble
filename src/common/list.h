@@ -1,3 +1,11 @@
+/**
+ * Linux kernel linked list, modified for userspace
+ * 
+ * This file is from Linux Kernel (include/linux/list.h) 
+ * and modified by simply removing hardware prefetching of list items. 
+ * Here by copyright, credits attributed to wherever they belong.
+ */
+
 #pragma once
 
 #define __offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
