@@ -1,4 +1,5 @@
-#include "common.h"
+#include "common/common.h"
+
 #include "controller.h"
 
 ControllerVTable* controller_get_vtable(Controller *controller) {

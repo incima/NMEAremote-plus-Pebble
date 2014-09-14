@@ -1,12 +1,12 @@
-#ifndef TRL_CONTROLLER_H_
-#define TRL_CONTROLLER_H_
+#pragma once
 
 #include <pebble.h>
-#include "list.h"
-#include "controller.h"
-#include "trl_top_view.h"
-#include "trl_bottom_view.h"
-#include "trl_switch_view.h"
+
+#include "common/list.h"
+#include "ui/controller.h"
+#include "ui/trl_top_view.h"
+#include "ui/trl_bottom_view.h"
+#include "ui/trl_switch_view.h"
 
 typedef enum {
 	TRLControlStateNone=0,
@@ -25,5 +25,3 @@ typedef struct {
 TRLController* trl_controller_create(Window* window, ControllerHandlers handlers);
 Controller* trl_controller_get_controller(TRLController*);
 TRLController* controller_get_trl_controller(Controller *);
-
-#endif /* TRL_CONTROLLER_H_ */

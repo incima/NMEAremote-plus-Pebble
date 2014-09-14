@@ -1,7 +1,6 @@
-#ifndef SPLASH_CONTROLLER_H_
-#define SPLASH_CONTROLLER_H_
+#pragma once
 
-#include "controller.h"
+#include "ui/controller.h"
 
 typedef struct {
 	Controller controller;
@@ -21,5 +20,3 @@ Controller* splash_controller_get_controller(SplashController* splash_controller
 void splash_controller_set_bitmap_from_resource(SplashController* splash_controller, uint32_t resource_id);
 void splash_controller_set_info_text(SplashController* splash_controller, char *info_text);
 void splash_controller_set_updating(SplashController* splash_controller, bool updating);
-
-#endif /* SPLASH_CONTROLLER_H_ */

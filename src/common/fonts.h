@@ -1,5 +1,4 @@
-#ifndef FONTS_H_
-#define FONTS_H_
+#pragma once
 
 #include <pebble.h>
 #include "common.h"
@@ -23,5 +22,3 @@ typedef struct {
 void fonts_load();
 void fonts_unload();
 GFont* fonts_get(FontType type);
-
-#endif /* FONTS_H_ */

@@ -1,8 +1,8 @@
-#ifndef TRL_TOP_VIEW_H_
-#define TRL_TOP_VIEW_H_
+#pragma once
 
 #include <pebble.h>
-#include "view.h"
+
+#include "ui/view.h"
 
 typedef struct {
 	View base;
@@ -13,5 +13,3 @@ typedef struct {
 
 TRLTopView* trl_top_view_create(char* title, char *value);
 TRLTopView* trl_top_view_from_view(View *view);
-
-#endif /* TRL_TOP_VIEW_H_ */

@@ -1,5 +1,6 @@
+#include "common/common.h"
+
 #include "timer_controller.h"
-#include "list.h"
 
 TimerController* timer_controller_from_controller(Controller *controller)
 {

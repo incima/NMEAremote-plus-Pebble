@@ -1,8 +1,8 @@
-#ifndef TIMER_VIEW_H_
-#define TIMER_VIEW_H_
+#pragma once
 
 #include <pebble.h>
-#include "view.h"
+
+#include "ui/view.h"
 
 typedef struct {
 	View base;
@@ -13,5 +13,3 @@ typedef struct {
 
 TimerView* timer_view_create(GRect frame);
 View* timer_view_get_view(TimerView *timer_view);
-
-#endif /* TIMER_VIEW_H_ */

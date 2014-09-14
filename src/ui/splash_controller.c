@@ -1,6 +1,6 @@
+#include "common/common.h"
+
 #include "splash_controller.h"
-#include "common.h"
-#include "fonts.h"
 
 static void splash_circle_layer_update_proc(Layer *layer, GContext *context)
 {

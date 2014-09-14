@@ -1,5 +1,4 @@
-#ifndef COMMON_H_
-#define COMMON_H_
+#pragma once
 
 #include <pebble.h>
 
@@ -85,6 +84,7 @@ typedef struct {
 	time_t starttime;
 	char starttime_str[8];	
 	time_t starttime_ts;
+	time_t seconds_to_gun; 	
 	char current_time[8];
 	char current_date[16];	
 	time_t current_time_ts;
@@ -96,4 +96,6 @@ typedef struct {
 
 extern NMEAValues values;
 
-#endif /* COMMON_H_ */
+#include "common/fonts.h"
+#include "common/format.h"
+#include "common/list.h"

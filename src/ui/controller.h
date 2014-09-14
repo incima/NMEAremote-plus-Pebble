@@ -1,5 +1,4 @@
-#ifndef CONTROLLER_H_
-#define CONTROLLER_H_
+#pragma once
 
 #include <pebble.h>
 
@@ -38,7 +37,4 @@ void controller_redraw_update_layer(Controller* controller, GColor color);
 void controller_destroy(Controller *);
 bool controller_on_button_up(Controller *controller, ClickRecognizerRef);
 bool controller_on_button_down(Controller *controller, ClickRecognizerRef);
-
 Window* controller_get_window(Controller *);
-
-#endif /* CONTROLLER_H_ */

@@ -1,4 +1,5 @@
-#include "common.h"
+#include "common/common.h"
+
 #include "trl_controller.h"
 
 TRLController* controller_get_trl_controller(Controller *controller) 

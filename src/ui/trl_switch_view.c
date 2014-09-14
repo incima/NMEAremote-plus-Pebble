@@ -1,3 +1,5 @@
+#include "common/common.h"
+
 #include "trl_switch_view.h"
 
 //#undef APP_LOG

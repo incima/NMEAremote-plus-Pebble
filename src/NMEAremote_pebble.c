@@ -1,11 +1,8 @@
 #include <pebble.h>
 #include <math.h>
-#include "common.h"
-#include "list.h"
-#include "classes/fonts.h"
-#include "classes/trl_controller.h"
-#include "classes/timer_controller.h"
-#include "classes/splash_controller.h"
+
+#include "common/common.h"
+#include "ui/ui.h"
 
 #define SYNC_UPDATE_TIMEOUT 10
 static AppSync sync;
@@ -24,6 +21,7 @@ struct list_head controller_list;
 NMEAValues values;
 
 static void connect_to_url();
+static Controller* window_get_controller(Window *window);
 
 static void connect_failed_timer_callback(void *data) 
 {
@@ -60,7 +58,7 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
   //APP_LOG(APP_LOG_LEVEL_DEBUG, "sync_tuple_changed_callback: %u", (unsigned int)key);		
 	
 	bool success = false;	
-  switch (key) {
+	switch (key) {
 		case URL_KEY:
 			if (old_tuple == NULL || 0 != strcmp(new_tuple->value->cstring, old_tuple->value->cstring)) {
 				memcpy(values.url, new_tuple->value->cstring, MIN(new_tuple->length, sizeof(values.url)));							
@@ -171,39 +169,9 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
 	}
 }
 
-size_t format_seconds(time_t v, char *time_str, size_t len) 
-{
-	int dd = (int)floor(v / (60 * 60 * 24));
-	int div_days = v % (60 * 60 * 24);
-	int hh = (int)floor(div_days / (60 * 60));
-	int div_min = div_days % (60 * 60);
-	int mm = (int)floor(div_min / 60);
-	int div_sec = div_min % 60;
-	int ss = (int)div_sec;
-		
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "format_seconds: %i:%i:%i:%i", dd, hh, mm, ss);
-	
-	unsigned int d = abs(dd);
-	unsigned int h = abs(hh);
-	unsigned int m = abs(mm);
-	unsigned int s = abs(ss);
-		
-	size_t c = 0;	
-	if (d > 0) {			
-		c = snprintf(&time_str[c], len-c, "%02u:%02u", d, h);				
-	} 
-	else if (h > 0) {		
-		c = snprintf(&time_str[c], len-c, "%02u:%02u", h, m);		
-	} 
-	else {	
-		c = snprintf(time_str + c, len-c, "%02u:%02u", m, s);				
-	}
-	return c;
-}
-
 static void app_timer_callback(void *data) 
 {  	
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "app_timer_callback: %lu", sync_update_count);			
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "app_timer_callback: %lu", sync_update_count);			
 	
 	if (sync_update_count > last_sync_update_count) {
 		sync_update_color = (sync_update_color == GColorBlack ? GColorWhite : GColorBlack);							
@@ -222,11 +190,12 @@ static void app_timer_callback(void *data)
 
 	// update starttime if available
 	if (values.starttime > 0) {						
-		time_t seconds = values.starttime - (values.current_time_ts + values.timezone_offset);				
-  		format_seconds(seconds, values.starttime_str, sizeof(values.starttime_str));				
+		values.seconds_to_gun = values.starttime - (values.current_time_ts + values.timezone_offset);				
+  		format_seconds(values.seconds_to_gun, values.starttime_str, sizeof(values.starttime_str));				
 	}
 	else {
 		char temp[] = "--:--";
+		values.seconds_to_gun = 0;
 		strncpy(values.starttime_str, temp, MIN(sizeof(temp)+1, sizeof(values.starttime_str)));
 	}
 		
@@ -266,15 +235,11 @@ static void app_timer_callback(void *data)
 	if (top_window == splash_window)
 		controller_redraw(splash_controller_get_controller(splash_controller));									
 	else {															
-		struct list_head *ptr;	
-		ControllerEntry *entry;		
-	  list_for_each(ptr, &controller_list) {
-	     entry = list_entry(ptr, ControllerEntry, list);
-	     if (controller_get_window(entry->controller) == top_window) {
-				 controller_redraw(entry->controller);												 
-				 controller_redraw_update_layer(entry->controller, sync_update_color);												 			 				 
-	     }			 
-	  }						
+		Controller *controller = window_get_controller(top_window);
+		if (controller) {
+			controller_redraw(controller);												 
+			controller_redraw_update_layer(controller, sync_update_color);			
+		}
 	}
 	last_sync_update_count = sync_update_count;
 	app_timer_register(APP_TIMER_TIMEOUT, app_timer_callback, NULL);

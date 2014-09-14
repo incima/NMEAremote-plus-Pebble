@@ -1,8 +1,8 @@
-#ifndef TRL_BOTTOM_VIEW_H_
-#define TRL_BOTTOM_VIEW_H_
+#pragma once
 
 #include <pebble.h>
-#include "view.h"
+
+#include "ui/view.h"
 
 typedef struct {
 	View base;
@@ -19,5 +19,3 @@ typedef struct {
 
 TRLBottomView* trl_bottom_view_create(char* left_title, char *left_value, char *right_title, char *right_value);
 TRLBottomView* trl_bottom_view_from_view(View *view);
-
-#endif /* TRL_BOTTOM_VIEW_H_ */

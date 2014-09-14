@@ -1,7 +1,6 @@
+#include "common/common.h"
+
 #include "trl_bottom_view.h"
-#include "common.h"
-#include "fonts.h"
-#include "list.h"
 
 #undef APP_LOG
 #define APP_LOG(...)

@@ -1,7 +1,4 @@
-#ifndef _LINUX_LIST_H
-#define _LINUX_LIST_H
-
-#include <stdio.h>
+#pragma once
 
 #define __offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
 
@@ -746,4 +743,3 @@ static inline void hlist_move_list(struct hlist_head *old,
 		({ tpos = hlist_entry(pos, typeof(*tpos), member); 1;}); \
 	     pos = n)
 
-#endif

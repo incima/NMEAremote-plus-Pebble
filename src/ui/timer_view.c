@@ -1,6 +1,6 @@
+#include "common/common.h"
+
 #include "timer_view.h"
-#include "list.h"
-#include "fonts.h"
 
 TimerView * timer_view_from_view(View *view)
 {
@@ -32,7 +32,7 @@ void timer_view_load(View *view)
 	text_layer_set_background_color(timer_view->title_layer, GColorClear);
 	text_layer_set_font(timer_view->title_layer, fonts_get(LIGHT_24_TEXT));
 	text_layer_set_text_alignment(timer_view->title_layer, GTextAlignmentCenter);
-	text_layer_set_text(timer_view->title_layer, "TO GUN");
+	text_layer_set_text(timer_view->title_layer, "TIMER");
 
 	layer_add_child(timer_view->base.root_layer, text_layer_get_layer(timer_view->value_layer));
 	layer_add_child(timer_view->base.root_layer, text_layer_get_layer(timer_view->title_layer));		

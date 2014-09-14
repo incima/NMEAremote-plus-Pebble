@@ -1,5 +1,6 @@
+#include "common/common.h"
+
 #include "view.h"
-#include "common.h"
 
 ViewVTable* view_get_vtable(View *view) {
 	return &view->vtable;

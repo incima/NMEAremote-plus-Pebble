@@ -1,8 +1,8 @@
-#ifndef VIEW_H_
-#define VIEW_H_
+#pragma once
 
 #include <pebble.h>
-#include "list.h"
+
+#include "common/list.h"
 
 struct View;
 
@@ -34,4 +34,3 @@ Layer* view_get_root_layer(View *);
 
 ViewListEntry* view_list_entry_create(View *view);
 	
-#endif /* VIEW_H_ */

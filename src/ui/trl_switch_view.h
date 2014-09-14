@@ -1,9 +1,9 @@
-#ifndef TRL_SWITCH_VIEW_H_
-#define TRL_SWITCH_VIEW_H_
+#pragma once
 
 #include <pebble.h>
-#include <list.h>
-#include <classes/view.h>
+
+#include "common/list.h"
+#include "ui/view.h"
 
 typedef struct {
 	View base;
@@ -19,5 +19,3 @@ void trl_switch_view_add_view(TRLSwitchView *, View *view);
 
 void trl_switch_view_next(TRLSwitchView *switch_view, bool animate);
 void trl_switch_view_prev(TRLSwitchView *switch_view, bool animate);
-
-#endif /* TRL_SWITCH_VIEW_H_ */
