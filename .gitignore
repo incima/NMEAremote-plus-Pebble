@@ -1,6 +1,4 @@
 # Ignore build generated files
 build
 .lock-waf_darwin_build
-.cproject
-.project
 .settings
