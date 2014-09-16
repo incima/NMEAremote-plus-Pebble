@@ -3,6 +3,9 @@
 
 #include "common/common.h"
 #include "ui/ui.h"
+#include "splash_controller.h"
+#include "timer_controller.h"
+#include "trl_controller.h"
 
 #define SYNC_UPDATE_TIMEOUT 10
 static AppSync sync;

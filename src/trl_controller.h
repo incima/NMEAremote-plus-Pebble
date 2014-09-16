@@ -24,13 +24,28 @@
 
 #pragma once
 
+#include <pebble.h>
+
+#include "common/list.h"
 #include "ui/controller.h"
-#include "ui/timer_view.h"
+#include "trl_top_view.h"
+#include "trl_bottom_view.h"
+#include "trl_switch_view.h"
+
+typedef enum {
+	TRLControlStateNone=0,
+	TRLControlStateTop,
+	TRLControlStateBottom	
+} TRLControlState;
 
 typedef struct {
-	Controller base;
-	TimerView *timer_view;	
-} TimerController;
+	Controller controller;
+	TRLControlState control_state;
+	TRLSwitchView *top_switch_view;
+	TRLSwitchView *bottom_switch_view;	
+	Layer *circle_layer;	
+} TRLController;
 
-TimerController* timer_controller_create(Window *, ControllerHandlers);
-Controller* timer_controller_get_controller(TimerController *timer_controller);
+TRLController* trl_controller_create(Window* window, ControllerHandlers handlers);
+Controller* trl_controller_get_controller(TRLController*);
+TRLController* controller_get_trl_controller(Controller *);
